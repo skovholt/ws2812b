@@ -26,8 +26,8 @@ INC_DIR = $(SRC_DIR) $(ARDUINO_INC_DIR) $(ARDUINO_PINS_INC_DIR)
 
 BUILD_DIR = build
 
-SRC = $(SRC_DIR)/*.cpp
-TEST_SRC = $(TEST_SRC_DIR)/*.cpp
+SRC = $(wildcard $(SRC_DIR)/*.cpp)
+TEST_SRC = $(wildcard $(TEST_SRC_DIR)/*.cpp)
 
 OBJ = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(SRC)))
 TEST_OBJ = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(TEST_SRC)))
@@ -35,13 +35,14 @@ TEST_OBJ = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(TEST_SRC)))
 COMPILER = $(addprefix $(BIN_DIR), $(COMPILER_NAME))
 INC = $(addprefix -I, $(INC_DIR))
 
-$(BUILD_DIR)/%.o: %.cpp
+$(BUILD_DIR)/%.o: %.cpp build
 	$(COMPILER) $(COMPILER_FLAGS) $(INC) -c $^ -o $@
 
 ctest: $(TEST_OBJ) build
 
 build:
-	mkdir build
+	mkdir $(BUILD_DIR) $(addprefix $(BUILD_DIR)/, $(SRC_DIR))
+	@echo $(addprefix $(BUILD_DIR)/, $(SRC_DIR))
 
 .PHONY: clean
 
