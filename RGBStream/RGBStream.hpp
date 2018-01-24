@@ -77,11 +77,16 @@ public:
 					char *string, 	
 					struct color_desc foreground_color,
 					struct color_desc background_color);
+
+	RGBStream();
+	~RGBStream();
 private:
-	struct char_desc *find_char_desc_in_font(int utf_char, struct font_desc *font);
+	struct char_desc *find_char_desc_in_font(	int utf_char, 
+							char feed_is_short,
+							struct font_desc *font);
 
 	char stream_char_feed(	struct char_desc *feed_char,
 				char feed_is_short,
 				struct color_desc foreg_color,
 				struct color_desc backg_color);
-}
+};

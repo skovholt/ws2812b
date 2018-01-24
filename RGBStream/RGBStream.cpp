@@ -1,11 +1,17 @@
+#include <avr/io.h>
+#include <string.h>
+
 #include "RGBStream.hpp"
 
 #define BITS_PER_BYTE 8
+#define TUNE_VAR_1 5
+#define TUNE_VAR_2 5
 
 // RGBStream functions need to be given a line to
 // set the LED array ablaze!
 
-struct char_desc * RGBStream::find_char_desc_in_font(	int utf8_char,
+struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(	
+							int utf8_char,
 							char feed_is_short,
 							struct font_desc *font)
 {
@@ -14,9 +20,10 @@ struct char_desc * RGBStream::find_char_desc_in_font(	int utf8_char,
 
 	for(	struct char_desc *pchar_desc = font->char_desc_ar; 
 		pchar_desc->utf8_val != 0;
-		pchar_desc = 	((char *) pchar_desc) + (feed_is_short ? \
+		pchar_desc = 	(struct char_desc *) (((char *) pchar_desc) +\
+				(feed_is_short ? \
 				pchar_desc->width * 2 : pchar_desc->width) \
-				+ sizeof(struct char_desc))
+				+ sizeof(struct char_desc)))
 	{
 		// The for loop functions so: We start at the char_desc array,
 		// We increment to the next array by skipping the struct 
@@ -67,7 +74,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			fcol_byte = foreg_col.blue;
 			bcol_byte = backg_col.blue;
 			break;
-		case default:
+		default:
 			break;
 		}
 
@@ -86,7 +93,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 				// Required signal is foreg = ones
 				// and background = zeros
 				// final_feed is ~ of required
-					final_feed ~= final_feed;
+					final_feed = ~final_feed;
 				}
 			} else {
 				if(bcol_byte && j) {
@@ -106,7 +113,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			if(feed_is_short)	// Set PORT-C too
 				PORTC = 0b01111111;
 
-			for(volatile char x; x < TUNE_VAR_1; x++) {			*** TUNE_VAR not yet provided ***
+			for(volatile char x; x < TUNE_VAR_1; x++) {
 				// Nothing! Just pause
 			}
 
@@ -118,7 +125,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 				// Just pause
 			}
 
-			final_feed ~= final_feed;
+			final_feed = ~final_feed;
 
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too
@@ -192,5 +199,5 @@ char RGBStream::displayString(	struct font_desc *font,
 					font->def_backg_color);
 }
 
-char RGBStream::RGBStream() {}
-char RGBStream::~RGBStream() {}
+RGBStream::RGBStream() {}
+RGBStream::~RGBStream() {}

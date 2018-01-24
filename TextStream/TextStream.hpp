@@ -1,4 +1,9 @@
-#pragme ONCE
+#pragma once
+
+// Includes the SD card routines
+#include <SD.h>
+// Includes the LED display driver
+#include "RGBStream.hpp"
 
 #define TXTSTRM_RND_CLR 1
 #define TXTSTRM_RND_FNT 1 << 1
@@ -6,24 +11,32 @@
 
 #define TXTSTRM_COLOR_NAME_SIZE 8
 
-// Includes the SD card routines
-#include <SD.h>
-// Includes the LED display driver
-#include "RGBStream.h"
+#define TXTSTRM_DEF_FILE_PATH "/words.txt"
+#define TXTSTRM_DEF_FONTS_DIR "/"
+#define TXTSTRM_DEF_COLORS_DIR "/"
 
-class TextStream: public RGBStream {
-public:
 	/* Refer here for error codes
+	 */
 	enum ret_val {
 		OK = 0,
 		NONSENSE_INPUT = -128,
 		BUFFER_INSUFF,
 	};
+
+class TextStream: public RGBStream 
+{
+public:
 	/* @brief: Create object with given defaults */
-	TextStream(	char *file_path = "/words.txt", char *fonts_dir = "/",
-			char *colors_dir = "/");
+	TextStream(	char *file_path = TXTSTRM_DEF_FILE_PATH,
+			char *fonts_dir = TXTSTRM_DEF_FONTS_DIR,
+			char *colors_dir = TXTSTRM_DEF_COLORS_DIR);
 //			char flags = 	TXTSTRM_RND_CLR | TXTSTRM_RND_FNT | \
 // Not text stream's job			TXTSTRM_RND_LINE);
+
+	struct ptr_ret {	// A way to return a ptr with a rv
+		char *ptr;
+		char rv;
+	};
 
 	/* @brief: Initialise the SD card
 	 * @args:
@@ -59,15 +72,10 @@ public:
 	/* @brief: Load the given font from an SD Card
 	 * @args:
 	 *	font_name_or_path: If just name, it's searched in def dir
+	 */
 	bool loadFont(char *font_name_or_path);
 
 private:
-	static struct ptr_ret {	// A way to return a ptr with a 
-				// return val
-		char *ptr;
-		char rv;
-	};
-
 	struct ptr_ret process_path(	char *file_str,
 					char *ext, char *def_path,
 					char *str_buf, char buflen);
@@ -77,8 +85,8 @@ private:
 	 */
 	struct color_store {
 		char name[TXTSTRM_COLOR_NAME_SIZE];
-		struct color_desc backg_col;
-		struct color_desc foreg_col;
+		struct RGBStream::color_desc backg_col;
+		struct RGBStream::color_desc foreg_col;
 	} *col_st = NULL;
 
 	/* Just one font'll be kept cache'd */
@@ -96,4 +104,4 @@ public:
 	bool collect_and_print_str(	int offset_in_file, unsigned short file_len,
 				char *file_name);
 #endif
-}
+};

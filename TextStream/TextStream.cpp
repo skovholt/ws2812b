@@ -1,9 +1,7 @@
-#pragma ONCE
-
 #include <stdlib.h>
 #include <string.h>
 
-#include "TextStream.h"
+#include "TextStream.hpp"
 
 /* The file extension for file font devised by the illustrious
  * creator Solomon Candy.
@@ -27,9 +25,9 @@
  * to be kept on stack
  * It's defined as a file scope var (better than `#define`)
  */
-static const short int MAX_FILE_PATH_LEN 128
+static const int MAX_FILE_PATH_LEN = 128;
 
-static const short char FORW_SLASH '/'
+static const char FORW_SLASH = '/';
 
 TextStream::TextStream(	char *file_path,
 			char *fonts_dir,
@@ -56,7 +54,8 @@ bool TextStream::init(unsigned char cs)
 /* A prototype functions that is supposed to fast
  * concatenate a series of strings.
  */
-struct ptr_ret process_path(	char *fl_str, char *ext,
+struct TextStream::ptr_ret process_path(
+				char *fl_str, char *ext,
 				char *def_path,
 				char *str_buf,
 				char buflen)
@@ -80,9 +79,11 @@ struct ptr_ret process_path(	char *fl_str, char *ext,
 
 	if(fl_str[0] == FORW_SLASH) {	// Full path provided
 		if(c_mark) 	// Seems normal
-			return (struct ptr_ret) {fl_str, 0};
+			return (struct TextStream::ptr_ret) \
+						{fl_str, 0};
 		else		// Non-sense input
-			return (struct ptr_ret) {NULL, NONSENSE_INPUT};
+			return (struct TextStream::ptr_ret) \
+				{NULL, NONSENSE_INPUT};
 	}
 
 	/* If here, file name provided possibly, with or
@@ -95,20 +96,24 @@ struct ptr_ret process_path(	char *fl_str, char *ext,
 	if(c_mark) {	// File extension provided
 		// Just prefix with default path
 		if(buflen < len) {
-			return {NULL, BUFFER_INSUFF};	// No space
+			return (struct TextStream::ptr_ret)\
+			{NULL, BUFFER_INSUFF};//No space
 		} else {
 			strcpy(str_buf, def_path);
 			strcat(str_buf, fl_str);
-			return {buf_len, 0};
+			return (struct TextStream::ptr_ret)\
+						{str_buf, 0};
 		}
 	} else {
 		// Prefix def path and suffix extension
 		if(buflen < len + strlen(ext)) {
-			return {NULL, BUFFER_INSUFF};	//No space
+			return (struct TextStream::ptr_ret)\
+			{NULL, BUFFER_INSUFF};//No space
 		} else {
 			strcpy(str_buf, def_path);
 			strcat(str_buf, fl_str);
-			return {buf_len, 0};
+			return (struct TextStream::ptr_ret)\
+						{str_buf, 0};
 		}
 	}
 
@@ -123,11 +128,12 @@ bool TextStream::loadFont(char *fnt_fl_str)
 			// Buffer on stack to keep the file name
 
 	ret = process_path(	fnt_fl_str, TXTSTRM_FNT_FILE_EXT,
+				def_fnt_dir,
 				fl_name_buf, MAX_FILE_PATH_LEN);
 
 	if(ret.rv != 0) return false;	// Path not returned; err
 
-	fnt_f = SDFile(ret.ptr, FILE_READ);
+	fnt_f = SD.open(ret.ptr, FILE_READ);
 
 	if(!fnt_f) return false;	// File couldn't be opened
 
@@ -161,7 +167,8 @@ bool TextStream::gleanColors(char *dir_path)
 	return false;	// Implement later
 }
 
-bool TextStream::collectStr(	char *)
+bool TextStream::collectStr(	int offset, unsigned short file_len,
+				char *file_name)
 {
 	return false;	// Implement later
 }
