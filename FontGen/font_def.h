@@ -18,8 +18,6 @@ typedef char byte_rep_row_t;	// visual description. It's row size should accomod
 typedef short int byte_rep_row_t;
 #endif
 
-#define NUM_FONTS 1
-
 struct color_rgb {	// GRB is the data order for WS2812x
 	char green;
 	char red;
@@ -29,7 +27,7 @@ struct color_rgb {	// GRB is the data order for WS2812x
 struct char_vis_desc {	// Visual definition of a character
 	int utf8_val;	// The "num" of the char, being a short max 65535 values
 	char width;	// Width can be anything greater than zero and less than MAX_WIDTH_HARD_LIMIT
-	int vis_desc[LED_STRIP_NUM];	// visual description as bit field, int so max 32 width
+	int vis_desc[LED_STRIP_NUM];	// visual description as bit field; int so max 32 width
 };
 
 struct char_desc {	// Formed after processing char_vis_desc
@@ -67,9 +65,47 @@ struct font_desc_arch {	// This is the storage format (in disc) of a font defini
 			.vis_desc = {0}\
 			}
 
+#define NUM_FONTS 2
+	// !!!!!	DONT FORGET TO SET THIS TO APPROPRIATE NUM
+
 #define FONT_DEF (struct font_desc[]) {\
 	(struct font_desc) {\
 		.name = {'d', 'e', 'm', 'o', 'f', 'o', 'n', 't'},\
+		.height = 8,\
+		.default_backg = (struct color_rgb) {0, 0, 0},\
+		.default_foreg = (struct color_rgb) {140, 140, 140},\
+		.char_desc_array = (struct char_vis_desc[]) {\
+			(struct char_vis_desc) {\
+				.width = 8,\
+				.utf8_val = 'K',\
+				.vis_desc = {	0b11000011	,\
+						0b11000110	,\
+						0b11011100	,\
+						0b11110000	,\
+						0b11110000	,\
+						0b11011100	,\
+						0b11000110	,\
+						0b11000011	,\
+					}\
+			},\
+			(struct char_vis_desc) {\
+				.width = 8,\
+				.utf8_val = 'O',\
+				.vis_desc = {	0b01111110	,\
+						0b10000001	,\
+						0b10000001	,\
+						0b10000001	,\
+						0b10000001	,\
+						0b10000001	,\
+						0b10000001	,\
+						0b01111110	,\
+					}\
+			},\
+			END_CHAR_DESC\
+		}\
+	}\
+	(struct font_desc) {\
+		.name = {'a', 'a', 'n', 'd', 'A', '\0'},\
 		.height = 8,\
 		.default_backg = (struct color_rgb) {0, 0, 0},\
 		.default_foreg = (struct color_rgb) {140, 140, 140},\

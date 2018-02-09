@@ -4,8 +4,18 @@
 #include "RGBStream.hpp"
 
 #define BITS_PER_BYTE 8
+
+#ifdef RGBSTRM_8MHZ_TUNING_SAFE
+#define TUNE_VAR_0 1
+#define TUNE_VAR_1 6
+#elif RGBSTRM_8MHZ_TUNING
+#define TUNE_VAR_0 2
 #define TUNE_VAR_1 5
-#define TUNE_VAR_2 5
+#else
+#warning "No tuning option specified! Using 8MHZ Tuning."
+#define TUNE_VAR_0 2
+#define TUNE_VAR_1 5
+#endif
 
 // RGBStream functions need to be given a line to
 // set the LED array ablaze!
@@ -15,14 +25,26 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 							char feed_is_short,
 							struct font_desc *font)
 {
+	/* This code portion is critical and may be a cause of breakage. If the 
+	 * characters list is too long, this function may hold the signal low
+	 * for too long causing the reset timeout of the LED strings thus
+	 * erasing the written part and rewriting the string from mid-way.
+	 * Watchout here if you encounter anything such, though I think there
+	 * is little you can do without modifying the other parts of the code
+	 * too because not much to optimise here.
+	 */
+
 	// We loop through a font structure and return a pointer to the
 	// desired character description
+	// Two different kinds of loop depending upon the size of each feed,
+	// indicated by feed_is_short.
+
+	if(feed_is_short) {
 
 	for(	struct char_desc *pchar_desc = font->char_desc_ar; 
 		pchar_desc->utf8_val != 0;
 		pchar_desc = 	(struct char_desc *) (((char *) pchar_desc) +\
-				(feed_is_short ? \
-				pchar_desc->width * 2 : pchar_desc->width) \
+				(pchar_desc->width * 2) \
 				+ sizeof(struct char_desc)))
 	{
 		// The for loop functions so: We start at the char_desc array,
@@ -32,6 +54,25 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 		// structure.
 
 		if(pchar_desc->utf8_val == utf8_char) return pchar_desc;
+	}
+
+	} else {
+
+	for(	struct char_desc *pchar_desc = font->char_desc_ar; 
+		pchar_desc->utf8_val != 0;
+		pchar_desc = 	(struct char_desc *) (((char *) pchar_desc) +\
+				(pchar_desc->width) \
+				+ sizeof(struct char_desc)))
+	{
+		// The for loop functions so: We start at the char_desc array,
+		// We increment to the next array by skipping the struct 
+		// char_desc size + the width of the char feed array at the end 
+		// of the struct. We continue until we hit the empty last 
+		// structure.
+
+		if(pchar_desc->utf8_val == utf8_char) return pchar_desc;
+	}
+
 	}
 
 	return NULL;
@@ -113,15 +154,17 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			if(feed_is_short)	// Set PORT-C too
 				PORTC = 0b01111111;
 
-			for(volatile char x; x < TUNE_VAR_1; x++) {
-				// Nothing! Just pause
-			}
+// Foregoing the loop and advancing directly for any more delay is 
+// too much delay
+//			for(volatile char x; x < TUNE_VAR_0; x++) {
+//				// Nothing! Just pause
+//			}
 
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too
 				PINC = ((char *) &final_feed)[1];
 
-			for(volatile char x; x < TUNE_VAR_2; x++) {
+			for(volatile char x; x < TUNE_VAR_1; x++) {
 				// Just pause
 			}
 
