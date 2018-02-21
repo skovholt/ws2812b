@@ -201,6 +201,15 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 		feed_is_short = 0;
 	}
 
+	// Set ports as output and set them low 
+	// (should be low already though)
+	DDRD = 0b11111111;
+	PORTD = 0b00000000;
+	if(feed_is_short) {
+		DDRC = 0b01111111;
+		PORTC = 0b00000000;
+	}
+
 	for(char i = 0; string[i] != '\0';) {
 		if(string[i] < 0) {	// More bytes in utf8 char
 			if(string[i + 1] < 0) {	// Even more bytes

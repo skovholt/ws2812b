@@ -3,7 +3,7 @@
 
 #pragma once
 
-#define RGBSTREAM_FONT_CACHE_SIZE 5	// How many fonts to keep in store. Excess freed.
+#define RGBSTREAM_FONT_NAME_SIZE 8
 
 enum return_values {
 	RGBSTREAM_FAIL = -1,
@@ -61,6 +61,7 @@ public:
 	};
 
 	struct font_desc {	// This contains font description and stores all the chars
+		char name[RGBSTREAM_FONT_NAME_SIZE];
 		char height;
 		struct color_desc def_foreg_color;
 		struct color_desc def_backg_color;

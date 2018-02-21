@@ -1,7 +1,9 @@
 #pragma once
 
+#include "ff.h"
+
 // Includes the SD card routines
-#include <SD.h>
+// #include <SD.h> // Don't, using a different module now
 // Includes the LED display driver
 #include "RGBStream.hpp"
 
@@ -15,6 +17,9 @@
 #define TXTSTRM_DISPLAY_STR_DELIMITER '\n'
 
 /* Modifyable portion of code ends. Tinker ahead at your own risk */
+
+#define TXTSTRM_USE_FATFS
+	// We use the FATFS module by chaN (elm-chan.org)
 
 #define TXTSTRM_RND_CLR 1
 #define TXTSTRM_RND_FNT 1 << 1
@@ -115,10 +120,10 @@ private:
 		char name[TXTSTRM_COLOR_NAME_SIZE];
 		struct RGBStream::color_desc backg_col;
 		struct RGBStream::color_desc foreg_col;
-	} *col_st = NULL;
+	} *col_st;
 
 	/* Just one font'll be kept cache'd */
-	struct font_desc *font_cache = NULL;
+	struct font_desc *font_cache;
 
 	/* Finds us the color in cache */
 	char find_color_cache(char *col_name);
@@ -127,16 +132,19 @@ private:
 	struct color_save col_save[TXTSTRM_COLOR_CACHE_SIZE];
 
 	// The display string is kept here after allocation
-	char *disp_str = NULL;
+	char *disp_str;
 
 	char *def_txt_file_path;	// Default text file path
 	char *def_fnt_dir;	// Default dir to look for font files in
 	char *def_col_dir;	// Default dir to look for color files in
 
+#ifdef TXTSTRM_USE_FATFS
+	FATFS fs;	// The mounted volume
+#endif
+
 #ifdef TXTSTRM_TEST
 public:
-	bool collect_and_print_str(	int offset_in_file, unsigned short file_len,
-				char *file_name);
+	bool collect_and_print_str(char *file_name);
 	/* Collect demofont and check it's integrity.
 	 * Demofont is a font with name demofont and file name demofont.sft;
 	 * it has the first two chars 'O' and 'K'.

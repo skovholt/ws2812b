@@ -3,6 +3,8 @@
 
 #include "TextStream.hpp"
 
+#include "ff.h"
+
 /* The file extension for file font devised by the illustrious
  * creator Solomon Candy.
  */
@@ -48,13 +50,24 @@ bool TextStream::init(unsigned char cs)
 	/* Got nothing to do in init except start the
 	 * SD Card utility
 	 */
-	return SD.begin(cs);
+//	return SD.begin(cs);
+
+#ifdef TXTSTRM_USE_FATFS
+	/* Initialise the ff module */
+	FRESULT rs;
+
+	rs = f_mount(&fs, "", 1);
+
+	if(rs != FR_OK) return false;
+#endif
+	
+	return true;
 }
 
 /* A function that is supposed to fast
  * concatenate a series of strings.
  */
-struct TextStream::ptr_ret process_path(
+struct TextStream::ptr_ret TextStream::process_path(
 				char *fl_str, char *ext,
 				char *def_path,
 				char *str_buf,
@@ -121,7 +134,12 @@ struct TextStream::ptr_ret process_path(
 
 bool TextStream::loadFont(char *fnt_fl_str)
 {
-	SDFile fnt_f;		// Font file object
+//	SDFile fnt_f;		// Font file object
+#ifdef	TXTSTRM_USE_FATFS
+	FIL fnt_f;
+	FRESULT rs;
+	UINT bytes_read;
+#endif
 	struct ptr_ret ret;	// Return value goes here
 	struct font_desc *temp_font_cache;
 	unsigned short int font_desc_size;
@@ -134,30 +152,46 @@ bool TextStream::loadFont(char *fnt_fl_str)
 
 	if(ret.rv != 0) return false;	// Path not returned; err
 
-	fnt_f = SD.open(ret.ptr, FILE_READ);
+//	fnt_f = SD.open(ret.ptr, FILE_READ);
+//	if(!fnt_f) return false;	// File couldn't be opened
+//	font_desc_size = fnt_f.size();
+#ifdef TXTSTRM_USE_FATFS
+	rs = f_open(&fnt_f, ret.ptr, FA_OPEN_EXISTING);
+	if(rs != FR_OK) return false;
+#endif
 
-	if(!fnt_f) return false;	// File couldn't be opened
-
-	font_desc_size = fnt_f.size();
 	temp_font_cache = (struct font_desc *) malloc(font_desc_size);
 
 	if(!temp_font_cache) {	// Couldn't allocate mem
 		goto ERROR;
 	}
 
-	if(fnt_f.read(temp_font_cache, font_desc_size) \
-						!= font_desc_size) {
+//	if(fnt_f.read(temp_font_cache, font_desc_size) \
+//						!= font_desc_size) {
+#ifdef TXTSTRM_USE_FATFS
+	font_desc_size = f_size(&fnt_f);
+
+	rs = f_read(&fnt_f, temp_font_cache, font_desc_size, 
+							&bytes_read);
+	if(rs != FR_OK) {
+#endif
 		free(temp_font_cache);
 		goto ERROR;
 	} else {
-		fnt_f.close();
+//		fnt_f.close();
+#ifdef	TXTSTRM_USE_FATFS
+		f_close(&fnt_f);
+#endif
 		free(font_cache);
 		font_cache = temp_font_cache;
 		return true;
 	}
 
 ERROR:
-		fnt_f.close();
+//		fnt_f.close();
+#ifdef	TXTSTRM_USE_FATFS
+		f_close(&fnt_f);
+#endif
 		return false;
 }
 
@@ -186,18 +220,79 @@ bool TextStream::loadColor(char *clr_str)
 
 bool TextStream::gleanColors(char *dir_path)
 {
-	return true;	// implement later
-
+#ifdef TXTSTRM_USE_FATFS
+	DIR dr;
+	FIL f_col;
+	FILINFO f_info;
+	FRESULT rs;
+	char loc;	// saves location in a big string
+	UINT saved_bytes;
+#else
 	SDFile c_dir;	// dir with color files
 	SDFile fl;	// Temp Class to view an opened file
+#endif
+	char ext_fmt[sizeof(TXTSTRM_COLOR_FILE_EXT) + 1];
+		// specifies a file ending in EXT
+	char f_pth[MAX_FILE_PATH_LEN];
 
 	char *f_name;	// to store file name ptr
-	char *mark;	// useful below :-)
-	char save_index;	// This too :-|
+	char *mark;	// useful below :-D
+	unsigned short save_index;	// This too :-|
 	char num_col;	// number of colors in the opened file
 
-	c_dir = SD.open(dir_path, FILE_READ);
+#ifdef TXTSTRM_USE_FATFS
+	ext_fmt[0] = '*';	// Making a pattern string
+	strcpy(ext_fmt + 1, TXTSTRM_COLOR_FILE_EXT);
 
+	// Preparing a prefix string, rest in loop
+	loc = strlcpy(f_pth, dir_path, MAX_FILE_PATH_LEN);
+		// This is not num_col!! Just frugality.
+	f_pth[loc] = FORW_SLASH;
+
+	rs = f_findfirst(&dr, &f_info, dir_path, ext_fmt);
+
+	while(rs == FR_OK && f_info.fname[0]) {
+		mark = strcpy(f_pth + loc + 1,
+				f_info.fname);
+		rs = f_open(&f_col, f_pth, FA_OPEN_EXISTING);
+		if(rs != FR_OK) goto ERROR;
+
+		num_col = f_size(&f_col) \
+				/ sizeof(struct color_save);
+
+		for(num_col; num_col; num_col--) {
+
+			save_index = find_color_cache(NULL);
+			if(save_index == NO_MATCHING_ENTRY)
+				goto ERROR;
+
+			rs = f_read(	&f_col,
+					col_save + save_index,
+					sizeof(struct color_save),
+					&saved_bytes);
+
+			if(rs != FR_OK || (saved_bytes != \
+				sizeof(struct color_save))) {
+				col_save[save_index].name[0]\
+					= '\0';
+				goto ERROR;
+			}
+		}
+
+		f_close(&f_col);
+		rs = f_findnext(&dr, &f_info);		
+		if(rs != FR_OK) goto ERROR;
+	}
+
+	return true;
+
+ERROR:
+	f_close(&f_col);
+	f_closedir(&dr);
+	return false;
+}					
+#else
+	c_dir = SD.open(dir_path, FILE_READ);
 	while((fl = c_dir.openNextFile())) {
 
 		f_name = fl.name();
@@ -242,35 +337,61 @@ ERROR:
 
 	return false;
 }
+#endif
 
 bool TextStream::collectStr(char *file_str)
 {
+#ifdef TXTSTRM_USE_FATFS
+	FIL fh;
+	FRESULT rs;
+	UINT i;
+#else
 	File fh;
-	struct ptr_ret fl_name;
+	char i;
+#endif
+	struct ptr_ret fl_name_ret;
 	char fl_name_buf[TXTSTRM_MAX_FILE_NAME_SIZE];
 	char str_buf[TXTSTRM_MAX_DISPLAY_STR_LEN * 2];
 		// We have enough memory on stack for two sentences;
 		// necessary if we are to skip one through
-	char i, j, k;
+	char j, k;
 
-	fl_name = process_path(	file_name, TXTSTRM_TEXT_FILE_EXT,
-			def_txt_file_path, fl_name,
-			sizeof(fl_name));
-	if(fl_name.rv) return false;
+	fl_name_ret = process_path(	file_str, TXTSTRM_TXT_FILE_EXT,
+			def_txt_file_path, fl_name_buf,
+			sizeof(fl_name_buf));
+	if(fl_name_ret.rv) return false;
 
-	fh = SD.open(fl_name.ptr);
+#ifdef TXTSTRM_USE_FATFS
+	rs = f_open(&fh, file_str, FA_OPEN_EXISTING);
+	if(rs != FR_OK) return false;
+
+	rs = f_lseek(&fh, (rand() * f_size(&fh) - \
+			TXTSTRM_MAX_DISPLAY_STR_LEN) / RAND_MAX);
+	if(rs != FR_OK) {
+		f_close(&fh); return false;
+	}
+
+	rs = f_read(&fh, str_buf, sizeof(str_buf), &i);
+	if(rs != FR_OK) {
+		f_close(&fh); return false;
+	}
+
+	f_close(&fh);
+#else
+	fh = SD.open(fl_name_ret.ptr);
 	if(!fh) return false;
 
 	if(!fh.seek(((rand() * fh.size()) - TXTSTRM_MAX_DISPLAY_STR_LEN \
-			 / RAND_MAX)) {
+			 / RAND_MAX))) {
 		// Review the coverage formula more throughly again !
 		fh.close();
 		return false;
 	}
 
-	i = fh.read(str_buf, sizeof(str_buf)) 
+	i = fh.read(str_buf, sizeof(str_buf));
 	
 	fh.close();
+#endif
 
 	if(i < TXTSTRM_MAX_DISPLAY_STR_LEN) {
 		return false;
@@ -287,7 +408,7 @@ bool TextStream::collectStr(char *file_str)
 	}
 
 	if(disp_str) free(disp_str);
-	disp_str = malloc(k - j + 1);	// +1 for null termination
+	disp_str = (char *) malloc(k - j + 1);	// +1 for null termination
 
 	if(!disp_str) {
 		return false;
@@ -303,7 +424,7 @@ bool TextStream::displayStr(char *str)
 {
 	char rv;
 
-	rv = displayStr(font_cache, str);
+	rv = displayString(font_cache, str);
 	if(rv) return false;
 
 	return true;
@@ -312,7 +433,7 @@ bool TextStream::displayStr(char *str)
 #ifdef TXTSTRM_TEST
 bool TextStream::collect_and_print_str(char *file_name)
 {
-	if(!collect_str(file_name)) {
+	if(!collectStr(file_name)) {
 		return false;
 	}
 
@@ -320,7 +441,7 @@ bool TextStream::collect_and_print_str(char *file_name)
 	return true;
 }
 
-bool TextStream::test_font()
+bool TextStream::demofont_test()
 {
 	bool b_rv;
 	char rv;
@@ -329,18 +450,20 @@ bool TextStream::test_font()
 	b_rv = loadFont("demofont");
 	if(!b_rv) return false;
 
-	rv = strncmp(font_cache.name, "demofont", 8);
+	rv = strncmp(font_cache->name, "demofont", 8);
 	if(rv) return false;
 
 	c_d = (struct char_desc *) (((char *) font_cache) + sizeof(struct font_desc));
-	if(c_d.utf8_val != 'K') return false;
+	if(c_d->utf8_val != 'K') return false;
 
-	c_d = (char *) c_d + sizeof(struct char_desc) + c_d.width * ((c_d.width < 8) ? sizeof(char) : sizeof(short));
-	if(c_d.utf8_val != 'O') return false;
+	c_d = (struct char_desc *) ((char *) c_d + sizeof(struct char_desc) + \
+		c_d->width * ((c_d->width <= 8) ? sizeof(char) : sizeof(short)));
+	if(c_d->utf8_val != 'O') return false;
 
 	return true;
+}
 
-bool TextStream::test_color()
+bool TextStream::democolor_test()
 {
 	char rv;
 
@@ -350,9 +473,8 @@ bool TextStream::test_color()
 	if(rv == NO_MATCHING_ENTRY) return false;
 
 	rv = find_color_cache("dutch");
-	if(rv == NO_MACTHING_ENTRY) return false; 
+	if(rv == NO_MATCHING_ENTRY) return false; 
 
 	return true;
-}
 }
 #endif

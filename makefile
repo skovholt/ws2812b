@@ -16,8 +16,9 @@ ARDUINO_ROOT_PATH = /Applications/Arduino.app/Contents/
 
 BIN_DIR = $(addsuffix Java/hardware/tools/avr/bin/, $(ARDUINO_ROOT_PATH))
 
-#	Set this to indicate where the 
-ARDUINO_INC_DIR = $(addsuffix Java/hardware/arduino/avr/cores/arduino, $(ARDUINO_ROOT_PATH))
+#	Set this to indicate where the .. - UPDATE - below defines not needed anymore
+ARDUINO_SRC_DIR = $(addsuffix Java/hardware/arduino/avr/cores/arduino, $(ARDUINO_ROOT_PATH))
+ARDUINO_INC_DIR = $(ARDUINO_SRC_DIR)
 ARDUINO_PINS_INC_DIR = $(addsuffix Java/hardware/arduino/avr/variants/mega, $(ARDUINO_ROOT_PATH))
 
 #	Don't edit anything below unless you intend to tinker.
@@ -39,10 +40,12 @@ FONTGEN_TARGET = clicktogetfontfile
 COLGEN_TARGET = clicktogetcolorfile
 #	FontGen related end.
 
-SRC_DIR = RGBStream TextStream SPI/src SD SD/utility
-INC_DIR = $(SRC_DIR) $(ARDUINO_INC_DIR) $(ARDUINO_PINS_INC_DIR)
+SRC_DIR = RGBStream TextStream 
+INC_DIR = $(SRC_DIR)
+LIB_DIR = lib
 
 SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp))
+ARDUINO_SRC = $(wildcard $(ARDUINO_SRC_DIR)/*.c) $(wildcard $(ARDUINO_SRC_DIR)/*.cpp)
 
 TEST_SRC_DIR = TextStream
 TEST_SRC = $(wildcard $(TEST_SRC_DIR)/*.cpp)
@@ -52,6 +55,8 @@ BUILD_TREE = $(addprefix $(BUILD_DIR)/, $(SRC_DIR))
 
 OBJ = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(SRC)))
 TEST_OBJ = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(TEST_SRC)))
+
+LIB = $(wildcard $(LIB_DIR)/*.a)
 
 DEFINES = TXTSTRM_TEST
 
@@ -67,7 +72,7 @@ all: $(OBJ) build
 	@echo "Src is " $(SRC)
 
 test: src/test.cpp all
-	$(COMPILER) $(INC) $(OBJ) $< -o build/test_prog
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) $< -o build/test_prog
 
 ctest: $(TEST_OBJ) build
 
