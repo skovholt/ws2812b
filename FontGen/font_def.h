@@ -103,7 +103,7 @@ struct font_desc_arch {	// This is the storage format (in disc) of a font defini
 			},\
 			END_CHAR_DESC\
 		}\
-	}\
+	},\
 	(struct font_desc) {\
 		.name = {'a', 'a', 'n', 'd', 'A', '\0'},\
 		.height = 8,\

@@ -78,13 +78,17 @@ ctest: $(TEST_OBJ) build
 
 fontgen: $(FONTGEN_TARGET) $(COLGEN_TARGET)
 
-$(FONTGEN_TARGET): $(FONTGEN_SRC)
+.PHONY: clean $(FONTGEN_TARGET) $(COLGEN_TARGET)
+
+$(FONTGEN_TARGET):
 	@echo "Acting on:" $(FONTGEN_SRC)
 	$(HOST_COMPILER) -o $(FONTGEN_TARGET) $(FONTGEN_SRC)
+	./$(FONTGEN_TARGET)
 
-$(COLGEN_TARGET): $(COLGEN_SRC)
+$(COLGEN_TARGET):
 	@echo "Acting on:" $(COLGEN_SRC)
-	$(HOST_COMPILER) -o $@ $^
+	$(HOST_COMPILER) -o $@ $(COLGEN_SRC)
+	./$(COLGEN_TARGET)
 
 build: $(BUILD_TREE)
 
@@ -92,8 +96,6 @@ $(BUILD_TREE):
 	mkdir -p $@
 
 
-
-.PHONY: clean
 
 clean:
 	rm -r build/*
