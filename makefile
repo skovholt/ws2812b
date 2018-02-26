@@ -15,6 +15,7 @@ ARDUINO_ROOT_PATH = /Applications/Arduino.app/Contents/
 #	like this: <Path To Arduino's Main Folder>/Java/hardware/tools/bin/
 
 BIN_DIR = $(addsuffix Java/hardware/tools/avr/bin/, $(ARDUINO_ROOT_PATH))
+AVRDUDE_CONF_FILE = $(addsuffix Java/hardware/tools/avr/etc/avrdude.conf, $(ARDUINO_ROOT_PATH))
 
 #	Set this to indicate where the .. - UPDATE - below defines not needed anymore
 ARDUINO_SRC_DIR = $(addsuffix Java/hardware/arduino/avr/cores/arduino, $(ARDUINO_ROOT_PATH))
@@ -27,7 +28,7 @@ COMPILER_NAME = avr-gcc
 
 HOST_COMPILER = gcc
 
-COMPILER_FLAGS = -mmcu=atmega328p
+COMPILER_FLAGS = -mmcu=atmega328p -DF_CPU=8000000 -O -std=gnu99
 
 # 	FontGen related below:
 FONTGEN_DIR = FontGen
@@ -40,7 +41,7 @@ FONTGEN_TARGET = clicktogetfontfile
 COLGEN_TARGET = clicktogetcolorfile
 #	FontGen related end.
 
-SRC_DIR = RGBStream TextStream 
+SRC_DIR = RGBStream TextStream
 INC_DIR = $(SRC_DIR)
 LIB_DIR = lib
 
@@ -61,6 +62,8 @@ LIB = $(wildcard $(LIB_DIR)/*.a)
 DEFINES = TXTSTRM_TEST
 
 COMPILER = $(addprefix $(BIN_DIR), $(COMPILER_NAME))
+AVRDUDE = $(addprefix $(BIN_DIR), avrdude)
+OBJCOPY = $(addprefix $(BIN_DIR), avr-objcopy)
 
 INC = $(addprefix -I, $(INC_DIR))
 DEF = $(addprefix -D, $(DEFINES))
@@ -69,16 +72,17 @@ $(BUILD_DIR)/%.o: %.cpp build
 	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(DEF) -c $^ -o $@
 
 all: $(OBJ) build
-	@echo "Src is " $(SRC)
 
-test: src/test.cpp all
-	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) $< -o build/test_prog
+test: src/uart_test.cpp all
+	@echo "Builing.."
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) -Iuart uart/uart.c $< -o build/test_prog
+	$(OBJCOPY) -j .text -j .data -O ihex build/test_prog test_prog.hex
 
 ctest: $(TEST_OBJ) build
 
 fontgen: $(FONTGEN_TARGET) $(COLGEN_TARGET)
 
-.PHONY: clean $(FONTGEN_TARGET) $(COLGEN_TARGET)
+.PHONY: clean $(FONTGEN_TARGET) $(COLGEN_TARGET) test_upload
 
 $(FONTGEN_TARGET):
 	@echo "Acting on:" $(FONTGEN_SRC)
@@ -90,12 +94,14 @@ $(COLGEN_TARGET):
 	$(HOST_COMPILER) -o $@ $(COLGEN_SRC)
 	./$(COLGEN_TARGET)
 
+test_upload:
+	@echo "Uploading.."
+	$(AVRDUDE) -p m328p -b 74880 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:test_prog.hex
+
 build: $(BUILD_TREE)
 
 $(BUILD_TREE):
 	mkdir -p $@
-
-
 
 clean:
 	rm -r build/*

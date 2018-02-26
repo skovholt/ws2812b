@@ -12,10 +12,17 @@
 #define TUNE_VAR_0 2
 #define TUNE_VAR_1 5
 #else
-#warning "No tuning option specified! Using 8MHZ Tuning."
-#define TUNE_VAR_0 2
-#define TUNE_VAR_1 5
-#endif
+#ifdef F_CPU
+#if F_CPU == 8000000
+#define TUNE_VAR_0 1
+#define TUNE_VAR_1 6
+#else // F_CPU == 8000000
+#error "Either define RGBSTREAM_8MHZ_TUNING or RGBSTREAM_8MHZ_TUNING_SAFE or FCPU == 8000000. Check source if you want a new definition."
+#endif // FCPU == 8000000
+#else // F_CPU
+#error "Either define RGBSTREAM_8MHZ_TUNING or RGBSTREAM_8MHZ_TUNING_SAFE or FCPU == 8000000. Check source if you want a new definition."
+#endif // F_CPU
+#endif // The whole thing
 
 // RGBStream functions need to be given a line to
 // set the LED array ablaze!
