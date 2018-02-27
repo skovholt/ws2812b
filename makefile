@@ -28,7 +28,7 @@ COMPILER_NAME = avr-gcc
 
 HOST_COMPILER = gcc
 
-COMPILER_FLAGS = -mmcu=atmega328p -DF_CPU=8000000 -O -std=gnu99
+COMPILER_FLAGS = -mmcu=atmega328p -DF_CPU=8000000 -O -std=gnu99 -DTXTSTRM_TEST=1
 
 # 	FontGen related below:
 FONTGEN_DIR = FontGen
@@ -42,7 +42,7 @@ COLGEN_TARGET = clicktogetcolorfile
 #	FontGen related end.
 
 SRC_DIR = RGBStream TextStream
-INC_DIR = $(SRC_DIR)
+INC_DIR = $(SRC_DIR) uart
 LIB_DIR = lib
 
 SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp))
@@ -73,9 +73,9 @@ $(BUILD_DIR)/%.o: %.cpp build
 
 all: $(OBJ) build
 
-test: src/uart_test.cpp all
+test: src/test.cpp all
 	@echo "Builing.."
-	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) -Iuart uart/uart.c $< -o build/test_prog
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) uart/uart.c $< -o build/test_prog
 	$(OBJCOPY) -j .text -j .data -O ihex build/test_prog test_prog.hex
 
 ctest: $(TEST_OBJ) build

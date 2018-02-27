@@ -5,6 +5,10 @@
 
 #include "ff.h"
 
+#ifdef TXTSTRM_TEST
+#include "uart.h"
+#endif
+
 /* The file extension for file font devised by the illustrious
  * creator Solomon Candy.
  */
@@ -434,6 +438,7 @@ bool TextStream::displayStr(char *str)
 bool TextStream::collect_and_print_str(char *file_name)
 {
 	if(!collectStr(file_name)) {
+		uart0_puts("Failed to collect string\n");
 		return false;
 	}
 
@@ -448,17 +453,29 @@ bool TextStream::demofont_test()
 	struct char_desc *c_d;
 
 	b_rv = loadFont("demofont");
-	if(!b_rv) return false;
+	if(!b_rv) {
+		uart0_puts("loadFont failed!\n");
+		return false;
+	}
 
 	rv = strncmp(font_cache->name, "demofont", 8);
-	if(rv) return false;
+	if(rv) {
+		uart0_puts("Font name test failed!\n");
+		return false;
+	}
 
 	c_d = (struct char_desc *) (((char *) font_cache) + sizeof(struct font_desc));
-	if(c_d->utf8_val != 'K') return false;
+	if(c_d->utf8_val != 'K') {
+		uart0_puts("Char check at index 0 failed!\n");
+		return false;
+	}
 
 	c_d = (struct char_desc *) ((char *) c_d + sizeof(struct char_desc) + \
 		c_d->width * ((c_d->width <= 8) ? sizeof(char) : sizeof(short)));
-	if(c_d->utf8_val != 'O') return false;
+	if(c_d->utf8_val != 'O') {
+		uart0_puts("Char check at index 1 failed!\n");
+		return false;
+	}
 
 	return true;
 }
@@ -467,13 +484,22 @@ bool TextStream::democolor_test()
 {
 	char rv;
 
-	gleanColors(def_col_dir);
+	rv = gleanColors(def_col_dir);
+	if(rv != 1) {
+		uart0_puts("gleanColors() failed!\n");
+	}
 
 	rv = find_color_cache("blknwhte");
-	if(rv == NO_MATCHING_ENTRY) return false;
+	if(rv == NO_MATCHING_ENTRY) {
+		uart0_puts("blknwht font not found!\n");
+		return false;
+	}
 
 	rv = find_color_cache("dutch");
-	if(rv == NO_MATCHING_ENTRY) return false; 
+	if(rv == NO_MATCHING_ENTRY) {
+		uart0_puts("dutch font not found!\n");
+		return false; 
+	}
 
 	return true;
 }

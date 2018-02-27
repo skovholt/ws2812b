@@ -156,5 +156,7 @@ public:
 	 * Both in the same file would be a better test.
 	 */
 	bool democolor_test();
+#else
+#warning "TextStream test functions disabled"
 #endif
 };
