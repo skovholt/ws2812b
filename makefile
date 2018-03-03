@@ -78,6 +78,11 @@ test: src/test.cpp all
 	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) uart/uart.c $< -o build/test_prog
 	$(OBJCOPY) -j .text -j .data -O ihex build/test_prog test_prog.hex
 
+led_test: src/led_test.cpp all
+	@echo "Building LED test.."
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) uart/uart.c $< -o build/led_test_prog
+	$(OBJCOPY) -j .text -j .data -O ihex build/led_test_prog led_test_prog.hex
+
 ctest: $(TEST_OBJ) build
 
 fontgen: $(FONTGEN_TARGET) $(COLGEN_TARGET)
@@ -97,6 +102,10 @@ $(COLGEN_TARGET):
 test_upload:
 	@echo "Uploading.."
 	$(AVRDUDE) -p m328p -b 74880 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:test_prog.hex
+
+led_test_upload:
+	@echo "Uploading.."
+	$(AVRDUDE) -p m328p -b 74880 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:led_test_prog.hex
 
 build: $(BUILD_TREE)
 
