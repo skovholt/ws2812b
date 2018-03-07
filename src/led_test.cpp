@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	uart0_puts("Second char:\t");
 	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
 
-//	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
+	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
 
 	uart0_puts("Finished.\n");
 

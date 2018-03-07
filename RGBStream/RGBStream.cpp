@@ -6,13 +6,16 @@
 #ifdef DEBUG
 #if DEBUG == 1
 #include "uart.h"
-#define DEBUG_PRINT(...) uart0_puts(##__VA_ARGS__)
-#define DEBUG_PRINT_CHAR(...) uart0_putc(##__VA_ARGS__)
+#warning "DEBUG_PRINT is on. Debug info will be printed through UART for the class RGBStream"
+#define DEBUG_PRINT(M) uart0_puts(M)
+#define DEBUG_PRINT_CHAR(M) uart0_putc(M)
 #else
+#warning "DEBUG_PRINT is off. No debug info will be printed for the RGBStream class"
 #define DEBUG_PRINT(...) do{} while(0)
 #define DEBUG_PRINT_CHAR(...) do{} while(0)
 #endif
 #else
+#warning "DEBUG_PRINT is off. No debug info will be printed for the RGBStream class"
 #define DEBUG_PRINT(...) do{} while(0)
 #define DEBUG_PRINT_CHAR(...) do{} while(0)
 #endif
@@ -120,6 +123,10 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 
 		short int final_feed;
 
+			DEBUG_PRINT("Iter");
+			DEBUG_PRINT_CHAR(48 + 'w');
+			DEBUG_PRINT_CHAR('\n');
+
 		if(feed_is_short) {
 			final_feed = feed_char->feed[w];
 		} else {
@@ -149,10 +156,13 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 		}
 
 		// Loop through all 8 bits of a color
-		for(char j = 0x80; j; j >>= 1) {
+		for(unsigned char j = 0x80; j; j >>= 1) {
 		// Set the final feed acc. to foreg and backg bits
 		// The final feed should be equal to the ~ of the
 		// desired signal bit
+
+			DEBUG_PRINT_CHAR('|');
+
 			if(fcol_byte && j) {
 				if(bcol_byte && j) {
 				// Required signal is all ones
@@ -183,6 +193,11 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			if(feed_is_short)	// Set PORT-C too
 				PORTC = 0b01111111;
 
+//	These lines were added for some debugging
+//			volatile char y;
+//			if(feed_is_short)
+//				y = 1;
+
 // Foregoing the loop and advancing directly for any more delay is 
 // too much delay
 //			for(volatile char x; x < TUNE_VAR_0; x++) {
@@ -192,6 +207,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too
 				PINC = ((char *) &final_feed)[1];
+// Was for debugging		PINC = ((char *) &final_feed)[0];
 
 			for(volatile char x; x < TUNE_VAR_1; x++) {
 				// Just pause
@@ -202,6 +218,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too
 				PINC = ((char *) &final_feed)[1];
+// Was for debugging		PINC = ((char *) &final_feed)[0];
 		}
 	}
 	}
@@ -270,6 +287,10 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 		if(!pcd) {
 			DEBUG_PRINT("char_desc not found\n"); rv = 1;
 			return rv;
+		} else {
+			DEBUG_PRINT("Found ");
+			DEBUG_PRINT_CHAR((char) (pcd->utf8_val));
+			DEBUG_PRINT_CHAR('\n');
 		}
 
 		DEBUG_PRINT("Streaming..\n");

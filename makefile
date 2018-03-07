@@ -69,7 +69,7 @@ INC = $(addprefix -I, $(INC_DIR))
 DEF = $(addprefix -D, $(DEFINES))
 
 $(BUILD_DIR)/%.o: %.cpp build
-	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(DEF) -c $^ -o $@
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(DEF) -DDEBUG=1 -c $^ -o $@
 
 all: $(OBJ) build
 
@@ -80,7 +80,7 @@ test: src/lil_test.cpp all
 
 led_test: src/led_test.cpp all
 	@echo "Building LED test.."
-	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) -DDEBUG uart/uart.c $< -o build/led_test_prog
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) -DDEBUG=1 uart/uart.c $< -o build/led_test_prog
 	$(OBJCOPY) -j .text -j .data -O ihex build/led_test_prog led_test_prog.hex
 
 ctest: $(TEST_OBJ) build
