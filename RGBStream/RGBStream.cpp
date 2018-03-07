@@ -3,6 +3,20 @@
 
 #include "RGBStream.hpp"
 
+#ifdef DEBUG
+#if DEBUG == 1
+#include "uart.h"
+#define DEBUG_PRINT(...) uart0_puts(##__VA_ARGS__)
+#define DEBUG_PRINT_CHAR(...) uart0_putc(##__VA_ARGS__)
+#else
+#define DEBUG_PRINT(...) do{} while(0)
+#define DEBUG_PRINT_CHAR(...) do{} while(0)
+#endif
+#else
+#define DEBUG_PRINT(...) do{} while(0)
+#define DEBUG_PRINT_CHAR(...) do{} while(0)
+#endif
+
 #define BITS_PER_BYTE 8
 
 #ifdef RGBSTRM_8MHZ_TUNING_SAFE
@@ -60,6 +74,10 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 		// of the struct. We continue until we hit the empty last 
 		// structure.
 
+		DEBUG_PRINT_CHAR('\t');
+		DEBUG_PRINT_CHAR((char) (pchar_desc->utf8_val));
+		DEBUG_PRINT_CHAR('\n');
+
 		if(pchar_desc->utf8_val == utf8_char) return pchar_desc;
 	}
 
@@ -76,6 +94,10 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 		// char_desc size + the width of the char feed array at the end 
 		// of the struct. We continue until we hit the empty last 
 		// structure.
+
+		DEBUG_PRINT_CHAR('\t');
+		DEBUG_PRINT_CHAR((char) (pchar_desc->utf8_val));
+		DEBUG_PRINT_CHAR('\n');
 
 		if(pchar_desc->utf8_val == utf8_char) return pchar_desc;
 	}
@@ -208,6 +230,8 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 		feed_is_short = 0;
 	}
 
+	DEBUG_PRINT("Showing:");
+
 	// Set ports as output and set them low 
 	// (should be low already though)
 	DDRD = 0b11111111;
@@ -233,12 +257,22 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 			i++;
 		}
 
+		DEBUG_PRINT_CHAR((char) utf8_char);
+		DEBUG_PRINT_CHAR('\n');
+
+		DEBUG_PRINT("Searching..\n");
+
 		// Get the font description
 		pcd = find_char_desc_in_font(	utf8_char,
 						feed_is_short,
 						font);
 
-		if(!pcd) rv = 1;
+		if(!pcd) {
+			DEBUG_PRINT("char_desc not found\n"); rv = 1;
+			return rv;
+		}
+
+		DEBUG_PRINT("Streaming..\n");
 
 		stream_char_feed(	pcd,
 					feed_is_short,

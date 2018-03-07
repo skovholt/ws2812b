@@ -79,8 +79,10 @@ int main(int argc, char *argv[])
 	RGBStream test_rs;
 	char font[512];	// We'll hold the test font here
 	char *marker;
+	RGBStream::font_desc *f_desc;
 
 	marker = font;
+	f_desc = (RGBStream::font_desc *) font;
 
 	uart0_init(UART_BAUD_SELECT(9600, 8000000));
 
@@ -113,7 +115,18 @@ int main(int argc, char *argv[])
 
 	memset(marker, 0, sizeof(struct RGBStream::char_desc));
 
-	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
+	uart0_puts("Testing font ..\n");
+
+	uart0_puts("Font name:\t");
+	uart0_puts(f_desc->name); uart0_putc('\n');
+
+	uart0_puts("First char:\t");
+	uart0_putc(f_desc->char_desc_ar->utf8_val); uart0_putc('\n');
+
+	uart0_puts("Second char:\t");
+	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
+
+//	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
 
 	uart0_puts("Finished.\n");
 
