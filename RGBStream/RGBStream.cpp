@@ -123,15 +123,20 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 
 		short int final_feed;
 
-			DEBUG_PRINT("Iter");
-			DEBUG_PRINT_CHAR(48 + 'w');
 			DEBUG_PRINT_CHAR('\n');
+			DEBUG_PRINT("Iter");
+			DEBUG_PRINT_CHAR(48 + w);
+			DEBUG_PRINT_CHAR('\t');
 
 		if(feed_is_short) {
 			final_feed = feed_char->feed[w];
 		} else {
 			final_feed = ((char *) feed_char->feed)[w];
 		}
+
+			DEBUG_PRINT_CHAR('\n');
+			DEBUG_PRINT_CHAR(((char *) &final_feed)[0]);
+			DEBUG_PRINT_CHAR('\t');
 
 	for(char i = 0; i < 3; i++) {	// Loop through each color byte
 		char fcol_byte, bcol_byte;	// Store color for loop
@@ -189,6 +194,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 				}
 			}
 
+
 			PORTD = 0b11111111;	// The initial high
 			if(feed_is_short)	// Set PORT-C too
 				PORTC = 0b01111111;
@@ -214,6 +220,8 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			}
 
 			final_feed = ~final_feed;
+
+			DEBUG_PRINT_CHAR(((char *) &final_feed)[0]);
 
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too

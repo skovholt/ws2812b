@@ -1,8 +1,11 @@
+#include <avr/io.h>
+#include <util/delay.h>
 #include <string.h>
 
 #include "RGBStream.hpp"
 
 #include "uart.h"
+#include "defines.h"
 
 struct just_nohin {
 	int nothing;
@@ -74,6 +77,40 @@ const char TEST_CHAR_K_FEED[] = {\
 //	11...11.
 //	11....11
 
+void timing_test()
+{
+	volatile char x;
+
+	PORTD = 0b00000000;
+	DDRD = 0b11111111;
+
+#if QUICK_START==0
+	_delay_ms(100);
+#endif
+
+	for(short i = 0; i < TOTAL_BITS; i++) {
+
+		x = 0;
+
+		PORTD = 0b11111111;
+
+		for(x; x < DELAY_STEPS; x++) {
+			// Delay loop
+		}
+
+#if PIN_TOGGLE==1
+		PIND = 0b11111111;
+#else
+		PORTD = 0b00000000;
+#endif
+
+#if REST==1
+		_delay_ms(1);
+#endif
+		
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	RGBStream test_rs;
@@ -115,18 +152,19 @@ int main(int argc, char *argv[])
 
 	memset(marker, 0, sizeof(struct RGBStream::char_desc));
 
-	uart0_puts("Testing font ..\n");
+//	uart0_puts("Testing font ..\n");
 
-	uart0_puts("Font name:\t");
-	uart0_puts(f_desc->name); uart0_putc('\n');
+//	uart0_puts("Font name:\t");
+//	uart0_puts(f_desc->name); uart0_putc('\n');
 
-	uart0_puts("First char:\t");
-	uart0_putc(f_desc->char_desc_ar->utf8_val); uart0_putc('\n');
+//	uart0_puts("First char:\t");
+//	uart0_putc(f_desc->char_desc_ar->utf8_val); uart0_putc('\n');
 
-	uart0_puts("Second char:\t");
-	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
+//	uart0_puts("Second char:\t");
+//	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
 
-	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
+//	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
+	timing_test();
 
 	uart0_puts("Finished.\n");
 
