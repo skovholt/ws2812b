@@ -4,7 +4,8 @@
 // New define! Try vals of zero and one
 #define QUANTUM_DELAY 0
 
-// 
+// Try values from 0 to 5
+#define INDUCE_DELAY 5
 
 // The below defines aren't activated this time
 

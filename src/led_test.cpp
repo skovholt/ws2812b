@@ -91,10 +91,15 @@ const unsigned char DANK_CHAR_K_FEED[] = {\
 void stream_K()
 {
 	volatile char x = 0;
+	char i;
+	char j;
+
+	x++; x++; x++; x++; x++;	// Inducing some wait
 
 	PORTD = 0b00000000;
 	DDRD = 0b11111111;
 
+	for(char j = 0; j < 8; j++) {
 	for(char i = 0; i < 24; i++) {
 		PORTD = 0b11111111;
 
@@ -105,84 +110,26 @@ void stream_K()
 #endif
 
 		PORTD = 0b00000000;	// Drop all
-	}
-	for(char i = 0; i < 24; i++) {
-		PORTD = 0b11111111;
 
-		PORTD = DANK_CHAR_K_FEED[1]; // Drop the zeros;
-
-#if QUANTUM_STEP==1
+#if INDUCE_DELAY > 0
 		x++;
 #endif
-
-		PORTD = 0b00000000;	// Drop all
-	}
-	for(char i = 0; i < 24; i++) {
-		PORTD = 0b11111111;
-
-		PORTD = DANK_CHAR_K_FEED[2]; // Drop the zeros;
-
-#if QUANTUM_STEP==1
+#if INDUCE_DELAY > 1
 		x++;
 #endif
-
-		PORTD = 0b00000000;	// Drop all
-	}
-	for(char i = 0; i < 24; i++) {
-		PORTD = 0b11111111;
-
-		PORTD = DANK_CHAR_K_FEED[3]; // Drop the zeros;
-
-#if QUANTUM_STEP==1
+#if INDUCE_DELAY > 2
 		x++;
 #endif
-
-		PORTD = 0b00000000;	// Drop all
-	}
-	for(char i = 0; i < 24; i++) {
-		PORTD = 0b11111111;
-
-		PORTD = DANK_CHAR_K_FEED[4]; // Drop the zeros;
-
-#if QUANTUM_STEP==1
+#if INDUCE_DELAY > 3
 		x++;
 #endif
-
-		PORTD = 0b00000000;	// Drop all
-	}
-	for(char i = 0; i < 24; i++) {
-		PORTD = 0b11111111;
-
-		PORTD = DANK_CHAR_K_FEED[5]; // Drop the zeros;
-
-#if QUANTUM_STEP==1
+#if INDUCE_DELAY > 4
 		x++;
 #endif
-
-		PORTD = 0b00000000;	// Drop all
 	}
-	for(char i = 0; i < 24; i++) {
-		PORTD = 0b11111111;
-
-		PORTD = DANK_CHAR_K_FEED[6]; // Drop the zeros;
-
-#if QUANTUM_STEP==1
-		x++;
-#endif
-
-		PORTD = 0b00000000;	// Drop all
 	}
-	for(char i = 0; i < 24; i++) {
-		PORTD = 0b11111111;
 
-		PORTD = DANK_CHAR_K_FEED[7]; // Drop the zeros;
-
-#if QUANTUM_STEP==1
-		x++;
-#endif
-
-		PORTD = 0b00000000;	// Drop all
-	}
+	return;
 }
 
 void timing_test()
