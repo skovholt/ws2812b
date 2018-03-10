@@ -1,6 +1,13 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
+// New define! Try vals of zero and one
+#define QUANTUM_DELAY 0
+
+// 
+
+// The below defines aren't activated this time
+
 // The most crucial define, try values from 1 to 5
 #define DELAY_STEPS 1
 

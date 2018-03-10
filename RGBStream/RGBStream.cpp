@@ -221,7 +221,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 
 			final_feed = ~final_feed;
 
-			DEBUG_PRINT_CHAR(((char *) &final_feed)[0]);
+//			DEBUG_PRINT_CHAR(((char *) &final_feed)[0]);
 
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too

@@ -77,6 +77,41 @@ const char TEST_CHAR_K_FEED[] = {\
 //	11...11.
 //	11....11
 
+const unsigned char DANK_CHAR_K_FEED[] = {\
+	0b10000001,\
+	0b11000011,\
+	0b01100110,\
+	0b00100100,\
+	0b00111100,\
+	0b00111100,\
+	0b11111111,\
+	0b11111111,\
+};
+
+void stream_K()
+{
+	volatile char x = 0;
+
+	PORTD = 0b00000000;
+	DDRD = 0b11111111;
+
+	for(char j = 0; j < 8; j++) {
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[j]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
+	}
+	}
+	
+	return;
+}
+
 void timing_test()
 {
 	volatile char x;
@@ -164,7 +199,9 @@ int main(int argc, char *argv[])
 //	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
 
 //	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
-	timing_test();
+//	timing_test();
+
+	stream_K();
 
 	uart0_puts("Finished.\n");
 
