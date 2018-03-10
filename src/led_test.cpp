@@ -101,11 +101,20 @@ void stream_K()
 
 	for(char j = 0; j < 8; j++) {
 	for(char i = 0; i < 24; i++) {
+
 		PORTD = 0b11111111;
 
-		PORTD = DANK_CHAR_K_FEED[0]; // Drop the zeros;
+#if ALL_LIT==1
+		PORTD = 0b11111111;
+#else
+		PORTD = DANK_CHAR_K_FEED[j]; // Drop the zeros;
+#endif
+		
 
-#if QUANTUM_STEP==1
+#if QUANTUM_DELAY > 1
+		x++;
+#endif
+#if QUANTUM_DELAY > 0
 		x++;
 #endif
 
