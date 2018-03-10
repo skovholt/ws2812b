@@ -104,8 +104,8 @@ void timing_test()
 		PORTD = 0b00000000;
 #endif
 
-#if REST==1
-		_delay_ms(1);
+#ifdef REST
+		_delay_ms(1 + 2 * REST);
 #endif
 		
 	}
