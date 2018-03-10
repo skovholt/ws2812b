@@ -95,11 +95,10 @@ void stream_K()
 	PORTD = 0b00000000;
 	DDRD = 0b11111111;
 
-	for(char j = 0; j < 8; j++) {
 	for(char i = 0; i < 24; i++) {
 		PORTD = 0b11111111;
 
-		PORTD = DANK_CHAR_K_FEED[j]; // Drop the zeros;
+		PORTD = DANK_CHAR_K_FEED[0]; // Drop the zeros;
 
 #if QUANTUM_STEP==1
 		x++;
@@ -107,9 +106,83 @@ void stream_K()
 
 		PORTD = 0b00000000;	// Drop all
 	}
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[1]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
 	}
-	
-	return;
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[2]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
+	}
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[3]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
+	}
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[4]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
+	}
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[5]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
+	}
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[6]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
+	}
+	for(char i = 0; i < 24; i++) {
+		PORTD = 0b11111111;
+
+		PORTD = DANK_CHAR_K_FEED[7]; // Drop the zeros;
+
+#if QUANTUM_STEP==1
+		x++;
+#endif
+
+		PORTD = 0b00000000;	// Drop all
+	}
 }
 
 void timing_test()
