@@ -44,11 +44,6 @@
 // RGBStream functions need to be given a line to
 // set the LED array ablaze!
 
-#if RGBSTRM_LOW_RAM == 0
-	static unsigned char stream_bits[2048];
-	static short stream_bits_counter;
-#endif
-
 struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(	
 							int utf8_char,
 							char feed_is_short,
@@ -115,13 +110,17 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 	return NULL;
 }
 
+
+
 #if RGBSTRM_LOW_RAM == 0
 void RGBStream::feed_bits()
 {
 	volatile char x;
-	char static_var;
+	unsigned char static_var;
 
 	static_var = stream_bits[0];
+
+	DEBUG_PRINT("Final streaming..\n");
 
 	for(short i = 0; i < stream_bits_counter;) {
 		PORTD = 0b11111111;	// Take all high
@@ -138,6 +137,7 @@ void RGBStream::feed_bits()
 	return;
 }
 #endif
+ 
 
 char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 					char feed_is_short,
@@ -204,13 +204,13 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 				// desired signal
 //					final_feed = 0x0;
 					final_feed = 0xFFFF;
-				} else {
+				} /* else {
 				// Required signal is foreg = ones
 				// and background = zeros
 				// final_feed is ~ of required
 //					final_feed = ~final_feed;
-//					final_feed = final_feed;
-				}
+					final_feed = final_feed;
+				} */
 			} else {
 				if(bcol_byte & j) {
 				// Required signal is foreg = zeroes
@@ -227,9 +227,11 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 				}
 			}
 
+
 #if RGBSTRM_LOW_RAM == 0
 			stream_bits[stream_bits_counter++] = final_feed;
 #else
+
 			PORTD = 0b11111111;	// The initial high
 			if(feed_is_short)	// Set PORT-C too
 				PORTC = 0b01111111;
@@ -253,7 +255,9 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too
 				PINC = ((char *) &final_feed)[1];
+
 #endif // RGBSTRM_LOW_RAM
+
 		}
 	}
 	}
@@ -344,7 +348,6 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 	// For not-low ram define, the data is being held to be streamed
 	feed_bits();
 #endif
-
 	return rv;
 }
 

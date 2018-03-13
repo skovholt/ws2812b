@@ -206,18 +206,18 @@ int main(int argc, char *argv[])
 
 	memset(marker, 0, sizeof(struct RGBStream::char_desc));
 
-//	uart0_puts("Testing font ..\n");
+	uart0_puts("Testing font ..\n");
 
-//	uart0_puts("Font name:\t");
-//	uart0_puts(f_desc->name); uart0_putc('\n');
+	uart0_puts("Font name:\t");
+	uart0_puts(f_desc->name); uart0_putc('\n');
 
-//	uart0_puts("First char:\t");
-//	uart0_putc(f_desc->char_desc_ar->utf8_val); uart0_putc('\n');
+	uart0_puts("First char:\t");
+	uart0_putc(f_desc->char_desc_ar->utf8_val); uart0_putc('\n');
 
-//	uart0_puts("Second char:\t");
-//	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
+	uart0_puts("Second char:\t");
+	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
 
-	stream_K();
+//	stream_K();
 
 	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
 //	timing_test();
