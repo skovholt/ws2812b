@@ -44,6 +44,11 @@
 // RGBStream functions need to be given a line to
 // set the LED array ablaze!
 
+#if RGBSTRM_LOW_RAM == 0
+	static unsigned char stream_bits[2048];
+	static short stream_bits_counter;
+#endif
+
 struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(	
 							int utf8_char,
 							char feed_is_short,
@@ -110,6 +115,30 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 	return NULL;
 }
 
+#if RGBSTRM_LOW_RAM == 0
+void RGBStream::feed_bits()
+{
+	volatile char x;
+	char static_var;
+
+	static_var = stream_bits[0];
+
+	for(short i = 0; i < stream_bits_counter;) {
+		PORTD = 0b11111111;	// Take all high
+
+		PORTD = static_var;
+
+		x++;
+
+		PORTD = 0;
+
+		static_var = stream_bits[++i];
+	}
+
+	return;
+}
+#endif
+
 char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 					char feed_is_short,
 					struct color_desc foreg_col,
@@ -123,10 +152,10 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 
 		short int final_feed;
 
-			DEBUG_PRINT_CHAR('\n');
-			DEBUG_PRINT("Iter");
-			DEBUG_PRINT_CHAR(48 + w);
-			DEBUG_PRINT_CHAR('\t');
+//			DEBUG_PRINT_CHAR('\n');
+//			DEBUG_PRINT("Iter");
+//			DEBUG_PRINT_CHAR(48 + w);
+//			DEBUG_PRINT_CHAR('\t');
 
 		if(feed_is_short) {
 			final_feed = feed_char->feed[w];
@@ -134,9 +163,9 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			final_feed = ((char *) feed_char->feed)[w];
 		}
 
-			DEBUG_PRINT_CHAR('\n');
-			DEBUG_PRINT_CHAR(((char *) &final_feed)[0]);
-			DEBUG_PRINT_CHAR('\t');
+//			DEBUG_PRINT_CHAR('\n');
+//			DEBUG_PRINT_CHAR(((char *) &final_feed)[0]);
+//			DEBUG_PRINT_CHAR('\t');
 
 	for(char i = 0; i < 3; i++) {	// Loop through each color byte
 		char fcol_byte, bcol_byte;	// Store color for loop
@@ -166,43 +195,44 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 		// The final feed should be equal to the ~ of the
 		// desired signal bit
 
-			DEBUG_PRINT_CHAR('|');
+//			DEBUG_PRINT_CHAR('|');
 
-			if(fcol_byte && j) {
-				if(bcol_byte && j) {
+			if(fcol_byte & j) {
+				if(bcol_byte & j) {
 				// Required signal is all ones
 				// remember final_feed is ~ of the 
 				// desired signal
-					final_feed = 0x0;
+//					final_feed = 0x0;
+					final_feed = 0xFFFF;
 				} else {
 				// Required signal is foreg = ones
 				// and background = zeros
 				// final_feed is ~ of required
-					final_feed = ~final_feed;
+//					final_feed = ~final_feed;
+//					final_feed = final_feed;
 				}
 			} else {
-				if(bcol_byte && j) {
+				if(bcol_byte & j) {
 				// Required signal is foreg = zeroes
 				// and backg = ones
 				// final_feed is ~ of required
 				// which is already the case
+					final_feed = ~final_feed;
 				} else {
 				// Required signal is all zeroes
 				// Since final_feed is ~ of req.
 				// we set it to all ones
-					final_feed = 0xFFFF;
+//					final_feed = 0xFFFF;
+					final_feed = 0x0;
 				}
 			}
 
-
+#if RGBSTRM_LOW_RAM == 0
+			stream_bits[stream_bits_counter++] = final_feed;
+#else
 			PORTD = 0b11111111;	// The initial high
 			if(feed_is_short)	// Set PORT-C too
 				PORTC = 0b01111111;
-
-//	These lines were added for some debugging
-//			volatile char y;
-//			if(feed_is_short)
-//				y = 1;
 
 // Foregoing the loop and advancing directly for any more delay is 
 // too much delay
@@ -213,7 +243,6 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too
 				PINC = ((char *) &final_feed)[1];
-// Was for debugging		PINC = ((char *) &final_feed)[0];
 
 			for(volatile char x; x < TUNE_VAR_1; x++) {
 				// Just pause
@@ -221,12 +250,10 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 
 			final_feed = ~final_feed;
 
-//			DEBUG_PRINT_CHAR(((char *) &final_feed)[0]);
-
 			PIND = ((char *) &final_feed)[0];// Toggle off
 			if(feed_is_short)	// Toggle PORTC too
 				PINC = ((char *) &final_feed)[1];
-// Was for debugging		PINC = ((char *) &final_feed)[0];
+#endif // RGBSTRM_LOW_RAM
 		}
 	}
 	}
@@ -248,6 +275,10 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 	int utf8_char;
 	char feed_is_short, rv = 0;
 	struct char_desc *pcd;
+
+#if RGBSTRM_LOW_RAM == 0
+	stream_bits_counter = 0;
+#endif
 
 	if(font->height > 8) {
 		feed_is_short = 1;
@@ -308,6 +339,11 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 					foreg_col,
 					backg_col);
 	}
+
+#if RGBSTRM_LOW_RAM == 0
+	// For not-low ram define, the data is being held to be streamed
+	feed_bits();
+#endif
 
 	return rv;
 }

@@ -3,6 +3,16 @@
 
 #pragma once
 
+// Defining RGBSTRM_LOW_RAM equal to one streams the bits as they are being generated
+// instead of saving them for later. This can lead to inaccurate timing
+#ifndef RGBSTRM_LOW_RAM
+#define RGBSTRM_LOW_RAM 0
+#endif
+
+#if RGBSTRM_LOW_RAM == 0
+#define RGBSTRM_
+#endif
+
 #define RGBSTREAM_FONT_NAME_SIZE 8
 
 enum return_values {
@@ -82,6 +92,9 @@ public:
 	RGBStream();
 	~RGBStream();
 private:
+#if RGBSTRM_LOW_RAM == 0
+	void feed_bits(); // Streams 8-bit saved feed
+#endif
 	struct char_desc *find_char_desc_in_font(	int utf_char, 
 							char feed_is_short,
 							struct font_desc *font);

@@ -7,16 +7,6 @@
 #include "uart.h"
 #include "defines.h"
 
-struct just_nohin {
-	int nothing;
-	char nothing_burger;
-};
-
-#define NOHIN (struct just_nohin) {\
-	.nothing = 0,\
-	.nothing_burger = 1\
-}
-
 const struct RGBStream::font_desc TEST_FONT_DESC = {\
 	.name = {'S', 'a', 'm', 'p', 'l', 'e', '\0'},\
 	.height = 8,\
@@ -185,17 +175,17 @@ int main(int argc, char *argv[])
 	marker = font;
 	f_desc = (RGBStream::font_desc *) font;
 
+	DDRD = 0b11111111;
+	PORTD = 0b11111111;
+
 	uart0_init(UART_BAUD_SELECT(9600, 8000000));
 
 	uart0_puts("Beginning..\n");
 
-//	memcpy(marker, &NOHIN, sizeof(struct just_nohin));
-//	marker += sizeof(struct just_nohin);
-
 //	uart0_puts("Below two lines should match:\n");
 
 //	uart0_puts("OK\n");
-//	uart0_putc(((struct RGBStream::font_desc) font)->char
+//	uart0_putc(((struct RGBStream::font_desc) font)->char;
 
 //	uart0_puts("Streaming..\n");
 
@@ -227,10 +217,11 @@ int main(int argc, char *argv[])
 //	uart0_puts("Second char:\t");
 //	uart0_putc(((struct RGBStream::char_desc *) (((char *) (f_desc->char_desc_ar)) + sizeof(struct RGBStream::char_desc) + 8))->utf8_val); uart0_putc('\n');
 
-//	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
+	stream_K();
+
+	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
 //	timing_test();
 
-	stream_K();
 
 	uart0_puts("Finished.\n");
 
