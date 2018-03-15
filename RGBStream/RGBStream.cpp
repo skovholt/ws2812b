@@ -32,7 +32,7 @@
 #ifdef F_CPU
 #if F_CPU == 8000000
 #define TUNE_VAR_0 1
-#define TUNE_VAR_1 6
+#define TUNE_VAR_1 2
 #else // F_CPU == 8000000
 #error "Either define RGBSTREAM_8MHZ_TUNING or RGBSTREAM_8MHZ_TUNING_SAFE or FCPU == 8000000. Check source if you want a new definition."
 #endif // FCPU == 8000000
@@ -233,8 +233,8 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 #else
 
 			PORTD = 0b11111111;	// The initial high
-			if(feed_is_short)	// Set PORT-C too
-				PORTC = 0b01111111;
+//			if(feed_is_short)	// Set PORT-C too
+//				PORTC = 0b01111111;
 
 // Foregoing the loop and advancing directly for any more delay is 
 // too much delay
@@ -242,19 +242,19 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 //				// Nothing! Just pause
 //			}
 
-			PIND = ((char *) &final_feed)[0];// Toggle off
-			if(feed_is_short)	// Toggle PORTC too
-				PINC = ((char *) &final_feed)[1];
+			PORTD = ((char *) &final_feed)[0];// Toggle off
+//			if(feed_is_short)	// Toggle PORTC too
+//				PORTC = ((char *) &final_feed)[1];
 
 			for(volatile char x; x < TUNE_VAR_1; x++) {
 				// Just pause
 			}
 
-			final_feed = ~final_feed;
+//			final_feed = ~final_feed;
 
-			PIND = ((char *) &final_feed)[0];// Toggle off
-			if(feed_is_short)	// Toggle PORTC too
-				PINC = ((char *) &final_feed)[1];
+			PORTD = 0; //((char *) &final_feed)[0];// Toggle off
+//			if(feed_is_short)	// Toggle PORTC too
+//				PORTC = 0 //((char *) &final_feed)[1];
 
 #endif // RGBSTRM_LOW_RAM
 
