@@ -143,12 +143,10 @@ void RGBStream::feed_bits()
 void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_col)
 {
 	unsigned char final_feed;
-	unsigned char preload;
 	short i;
+	volatile char x;
 	
-	preload = stream_bytes[0];
-
-	for(i = 0; i < stream_bytes_counter;) {
+	for(i = 0; i < stream_bytes_counter; i++) {
 	for(char i = 0; i < 3; i++) {	// Loop through each color byte
 		char fcol_byte, bcol_byte;	// Store color for loop
 
@@ -181,11 +179,11 @@ void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_
 				if(bcol_byte & j) {
 					final_feed = 0xFF;
 				}  else {
-					final_feed = preload;
+					final_feed = stream_bytes[i];
 				} 
 			} else {
 				if(bcol_byte & j) {
-					final_feed = ~preload;
+					final_feed = ~stream_bytes[i];
 				} else {
 					final_feed = 0x0;
 				}
@@ -197,7 +195,7 @@ void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_
 
 		PORTD = final_feed;
 
-		preload = stream_bytes[++i];
+		x++;
 
 		PORTD = 0;
 	}
