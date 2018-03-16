@@ -168,7 +168,7 @@ void timing_test()
 int main(int argc, char *argv[])
 {
 	RGBStream test_rs;
-	char font[512];	// We'll hold the test font here
+	char font[256];	// We'll hold the test font here
 	char *marker;
 	RGBStream::font_desc *f_desc;
 
@@ -225,7 +225,23 @@ int main(int argc, char *argv[])
 
 	uart0_puts("Finished.\n");
 
-	for(;;) {};
+	uart0_puts("Waiting for command now. Send any string to stream\n");
+	for(;;) {
+		char recv_buffer[32];
+		char mark;
+		if(uart0_available()) {
+			mark = 0;
+
+			// Collect the characters
+			while(uart0_available()) {
+				recv_buffer[mark++] = uart0_getc();
+			}
+			recv_buffer[mark] = '\0';
+			
+			// Stream it now
+			test_rs.displayString((struct RGBStream::font_desc *) font, recv_buffer);
+		}
+	};
 
 	return 0;
 }

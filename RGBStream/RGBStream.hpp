@@ -13,8 +13,9 @@
 #define RGBSTREAM_FONT_NAME_SIZE 8
 
 enum return_values {
-	RGBSTREAM_FAIL = -1,
 	RGBSTREAM_SUCCESS = 0,
+	RGBSTREAM_FAIL = -1,
+	RGBSTREAM_MEM = -2,
 };
 
 /* A note on naming convention:
@@ -96,6 +97,11 @@ private:
 	int stream_bits_counter;
 
 	void feed_bits(); // Streams 8-bit saved feed
+#elif RGBSTRM_LOW_RAM == 1
+	unsigned char stream_bytes[256];
+	int stream_bytes_counter;
+
+	void feed_bytes(struct color_desc foreg_col, struct color_desc backg_col); // Streams byte feed
 #endif
 
 	struct char_desc *find_char_desc_in_font(	int utf_char, 
