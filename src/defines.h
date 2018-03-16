@@ -1,14 +1,14 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
+// Try values from 1 to 15 
+#define INDUCE_DELAY 1
+
 // Try values of 0 and 1
 #define ALL_LIT 1
 
 // New define! Try vals of zero and one and two!
 #define QUANTUM_DELAY 0
-
-// Try values from 0 to 5 // Play with above two values first
-#define INDUCE_DELAY 1
 
 // The below defines aren't activated this time
 

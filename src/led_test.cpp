@@ -125,6 +125,39 @@ void stream_K()
 #if INDUCE_DELAY > 4
 		x++;
 #endif
+#if INDUCE_DELAY > 5
+		x++;
+#endif
+#if INDUCE_DELAY > 6
+		x++;
+#endif
+#if INDUCE_DELAY > 7
+		x++;
+#endif
+#if INDUCE_DELAY > 8
+		x++;
+#endif
+#if INDUCE_DELAY > 9
+		x++;
+#endif
+#if INDUCE_DELAY > 10
+		x++;
+#endif
+#if INDUCE_DELAY > 11
+		x++;
+#endif
+#if INDUCE_DELAY > 12
+		x++;
+#endif
+#if INDUCE_DELAY > 13
+		x++;
+#endif
+#if INDUCE_DELAY > 14
+		x++;
+#endif
+#if INDUCE_DELAY > 15
+		x++;
+#endif
 	}
 	}
 
@@ -219,8 +252,9 @@ int main(int argc, char *argv[])
 
 //	stream_K();
 
-	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
-//	timing_test();
+	timing_test();
+
+//	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
 
 
 	uart0_puts("Finished.\n");

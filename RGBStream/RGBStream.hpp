@@ -93,7 +93,7 @@ public:
 private:
 
 #if RGBSTRM_LOW_RAM == 0
-	unsigned char stream_bits[512];
+	unsigned char stream_bits[768];
 	int stream_bits_counter;
 
 	void feed_bits(); // Streams 8-bit saved feed
