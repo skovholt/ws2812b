@@ -1,6 +1,9 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
+// Lets try changing this!
+#define DELAY_LIMIT 500
+
 // Try values from 1 to 15 
 #define INDUCE_DELAY 1
 

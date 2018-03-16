@@ -110,6 +110,10 @@ void stream_K()
 
 		PORTD = 0b00000000;	// Drop all
 
+	for(short k = 0; k < DELAY_LIMIT; k++) {
+		uart0_putc('?');
+	}
+	
 #if INDUCE_DELAY > 0
 		x++;
 #endif
