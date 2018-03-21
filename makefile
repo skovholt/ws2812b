@@ -28,7 +28,7 @@ COMPILER_NAME = avr-gcc
 
 HOST_COMPILER = gcc
 
-COMPILER_FLAGS = -mmcu=atmega328p -DF_CPU=8000000 -O -std=gnu99 -DTXTSTRM_TEST=1
+COMPILER_FLAGS = -mmcu=atmega2560 -DF_CPU=8000000 -O -std=gnu99 -DTXTSTRM_TEST=1
 
 # 	FontGen related below:
 FONTGEN_DIR = FontGen
