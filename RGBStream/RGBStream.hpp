@@ -7,7 +7,7 @@
 // instead of saving them for later. This can lead to inaccurate timing
 
 #ifndef RGBSTRM_LOW_RAM
-#define RGBSTRM_LOW_RAM 1
+#define RGBSTRM_LOW_RAM 0
 #endif
 
 #define RGBSTREAM_FONT_NAME_SIZE 8

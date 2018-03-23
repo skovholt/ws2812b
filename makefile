@@ -110,7 +110,7 @@ test_upload:
 
 led_test_upload:
 	@echo "Uploading.."
-	$(AVRDUDE) -p m328p -e -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:led_test_prog.hex
+	$(AVRDUDE) -p m2560 -e -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:led_test_prog.hex
 
 build: $(BUILD_TREE)
 
