@@ -126,13 +126,13 @@ void RGBStream::feed_bits()
 	DEBUG_PRINT("Final streaming..\n");
 
 	for(short i = 0; i < stream_bits_counter;) {
-		PORTD = 0b11111111;	// Take all high
+		PORTx = 0b11111111;	// Take all high
 
-		PORTD = static_var;
+		PORTx = static_var;
 
 		x++;
 
-		PORTD = 0;
+		PORTx = 0;
 
 		static_var = stream_bits[++i];
 	}
@@ -191,13 +191,13 @@ void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_
 
 		}
 
-		PORTD = 0xFF;
+		PORTx = 0xFF;
 
-		PORTD = final_feed;
+		PORTx = final_feed;
 
 		x++;
 
-		PORTD = 0;
+		PORTx = 0;
 	}
 	}
 
@@ -281,7 +281,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 			stream_bits[stream_bits_counter++] = final_feed;
 #else
 
-			PORTD = 0b11111111;	// The initial high
+			PORTx = 0b11111111;	// The initial high
 //			if(feed_is_short)	// Set PORT-C too
 //				PORTC = 0b01111111;
 
@@ -291,7 +291,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 //				// Nothing! Just pause
 //			}
 
-			PORTD = ((char *) &final_feed)[0];// Toggle off
+			PORTx = ((char *) &final_feed)[0];// Toggle off
 //			if(feed_is_short)	// Toggle PORTC too
 //				PORTC = ((char *) &final_feed)[1];
 
@@ -301,7 +301,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 
 //			final_feed = ~final_feed;
 
-			PORTD = 0; //((char *) &final_feed)[0];// Toggle off
+			PORTx = 0; //((char *) &final_feed)[0];// Toggle off
 //			if(feed_is_short)	// Toggle PORTC too
 //				PORTC = 0 //((char *) &final_feed)[1];
 
@@ -345,8 +345,8 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 
 	// Set ports as output and set them low 
 	// (should be low already though)
-	DDRD = 0b11111111;
-	PORTD = 0b00000000;
+	DDRx = 0b11111111;
+	PORTx = 0b00000000;
 	if(feed_is_short) {
 		DDRC = 0b01111111;
 		PORTC = 0b00000000;

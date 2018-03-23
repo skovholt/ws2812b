@@ -10,6 +10,9 @@
 #define RGBSTRM_LOW_RAM 0
 #endif
 
+#define PORTx PORTA
+#define DDRx DDRA
+
 #define RGBSTREAM_FONT_NAME_SIZE 8
 
 enum return_values {
