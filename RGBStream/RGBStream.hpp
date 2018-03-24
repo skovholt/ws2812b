@@ -10,8 +10,8 @@
 #define RGBSTRM_LOW_RAM 0
 #endif
 
-#define PORTx PORTD
-#define DDRx DDRD
+#define PORTx PORTA
+#define DDRx DDRA
 
 #define RGBSTREAM_FONT_NAME_SIZE 8
 
@@ -89,6 +89,8 @@ public:
 					char *string, 	
 					struct color_desc foreground_color,
 					struct color_desc background_color);
+
+	void refreshLEDs();
 
 	RGBStream();
 	~RGBStream();

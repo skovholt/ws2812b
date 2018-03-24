@@ -257,6 +257,7 @@ int main(int argc, char *argv[])
 			uart0_putc('\n');
 
 			// Stream it now
+			test_rs.refreshLEDs();
 			test_rs.displayString((struct RGBStream::font_desc *) font, recv_buffer);
 		}
 	};

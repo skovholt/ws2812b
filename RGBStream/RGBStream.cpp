@@ -137,6 +137,23 @@ void RGBStream::feed_bits()
 
 	return;
 }
+ 
+void RGBStream::refreshLEDs()
+{
+	unsigned short int i;
+
+	for(i = 0; i < sizeof(stream_bits); i++) {
+		stream_bits[i] = 0;
+	}
+
+	// stream_bits_counter can be maxed out here to reach all LEDs
+	// but probably no need as it's already set to the last streams reach
+
+	feed_bits();
+
+	return;
+}
+
 #elif RGBSTRM_LOW_RAM == 1
 void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_col)
 {
@@ -202,7 +219,6 @@ void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_
 	return;
 }
 #endif
- 
 
 char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 					char feed_is_short,
