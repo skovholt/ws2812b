@@ -28,7 +28,7 @@ COMPILER_NAME = avr-gcc
 
 HOST_COMPILER = gcc
 
-COMPILER_FLAGS = -mmcu=atmega2560 -DF_CPU=8000000 -O -std=gnu99 -DTXTSTRM_TEST=1
+COMPILER_FLAGS = -mmcu=$(MCU) -DF_CPU=8000000 -O -std=gnu99 -DTXTSTRM_TEST=1
 
 # 	FontGen related below:
 FONTGEN_DIR = FontGen
@@ -106,11 +106,11 @@ $(COLGEN_TARGET):
 
 test_upload:
 	@echo "Uploading.."
-	$(AVRDUDE) -p m328p -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:test_prog.hex
+	$(AVRDUDE) -p $(MCU) -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:test_prog.hex
 
 led_test_upload:
 	@echo "Uploading.."
-	$(AVRDUDE) -p m2560 -e -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:led_test_prog.hex
+	$(AVRDUDE) -p $(MCU) -e -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:led_test_prog.hex
 
 build: $(BUILD_TREE)
 

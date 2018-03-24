@@ -80,6 +80,7 @@ const unsigned char DANK_CHAR_K_FEED[] = {\
 
 void stream_K()
 {
+	// This is a test that streams a single character to PORTD
 	volatile char x = 0;
 	char i;
 	char j;
@@ -140,6 +141,7 @@ void stream_K()
 
 void timing_test()
 {
+	// This is a test that streams all white LEDs of eight length to PORTD
 	volatile char x;
 
 	PORTD = 0b00000000;
@@ -236,16 +238,24 @@ int main(int argc, char *argv[])
 	uart0_puts("Waiting for command now. Send any string to stream\n");
 	for(;;) {
 		char recv_buffer[32];
-		char mark;
+		char mark, ch;
 		if(uart0_available()) {
 			mark = 0;
 
 			// Collect the characters
-			while(uart0_available()) {
-				recv_buffer[mark++] = uart0_getc();
+			while((ch = uart0_getc()) != '\n') {
+				recv_buffer[mark++] = ch;
+				while(!uart0_available()) {
+					// wait till next byte arrives
+				}
 			}
+
 			recv_buffer[mark] = '\0';
 			
+			uart0_puts("Received:\t");
+			uart0_puts(recv_buffer);
+			uart0_putc('\n');
+
 			// Stream it now
 			test_rs.displayString((struct RGBStream::font_desc *) font, recv_buffer);
 		}

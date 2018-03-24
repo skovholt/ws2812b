@@ -82,7 +82,6 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 
 		DEBUG_PRINT_CHAR('\t');
 		DEBUG_PRINT_CHAR((char) (pchar_desc->utf8_val));
-		DEBUG_PRINT_CHAR('\n');
 
 		if(pchar_desc->utf8_val == utf8_char) return pchar_desc;
 	}
@@ -103,7 +102,6 @@ struct RGBStream::char_desc * RGBStream::find_char_desc_in_font(
 
 		DEBUG_PRINT_CHAR('\t');
 		DEBUG_PRINT_CHAR((char) (pchar_desc->utf8_val));
-		DEBUG_PRINT_CHAR('\n');
 
 		if(pchar_desc->utf8_val == utf8_char) return pchar_desc;
 	}
@@ -123,7 +121,7 @@ void RGBStream::feed_bits()
 
 	static_var = stream_bits[0];
 
-	DEBUG_PRINT("Final streaming..\n");
+	DEBUG_PRINT("Streaming..\n");
 
 	for(short i = 0; i < stream_bits_counter;) {
 		PORTx = 0b11111111;	// Take all high
@@ -341,7 +339,9 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 		feed_is_short = 0;
 	}
 
-	DEBUG_PRINT("Showing:");
+	DEBUG_PRINT("Showing:\t");
+	DEBUG_PRINT(string);
+	DEBUG_PRINT_CHAR('\n');
 
 	// Set ports as output and set them low 
 	// (should be low already though)
@@ -368,10 +368,10 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 			i++;
 		}
 
+		DEBUG_PRINT("Searching..\t");
 		DEBUG_PRINT_CHAR((char) utf8_char);
 		DEBUG_PRINT_CHAR('\n');
 
-		DEBUG_PRINT("Searching..\n");
 
 		// Get the font description
 		pcd = find_char_desc_in_font(	utf8_char,
@@ -387,7 +387,7 @@ char RGBStream::displayStringWithColor(	struct font_desc *font,
 			DEBUG_PRINT_CHAR('\n');
 		}
 
-		DEBUG_PRINT("Streaming..\n");
+		DEBUG_PRINT("Stacking..\n");
 
 		stream_char_feed(	pcd,
 					feed_is_short,

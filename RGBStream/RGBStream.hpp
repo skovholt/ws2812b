@@ -10,8 +10,8 @@
 #define RGBSTRM_LOW_RAM 0
 #endif
 
-#define PORTx PORTA
-#define DDRx DDRA
+#define PORTx PORTD
+#define DDRx DDRD
 
 #define RGBSTREAM_FONT_NAME_SIZE 8
 
