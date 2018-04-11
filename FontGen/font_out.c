@@ -37,7 +37,7 @@ struct char_desc * make_char_feed_desc(	struct char_vis_desc *cvd,
 	// Now only appending the feed array remains
 	memcpy(empty_bytes, &char_desc_head, sizeof(struct char_desc));
 
-	for(char i = 0; i < cvd->width; i++) {
+	for(char i = cvd->width - 1; i >= 0; --i) {
 
 		short int feed_element;
 		feed_element = 0;

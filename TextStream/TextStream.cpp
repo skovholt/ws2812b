@@ -3,10 +3,18 @@
 
 #include "TextStream.hpp"
 
+#ifdef TXTSTRM_USE_FATFS
 #include "ff.h"
+#else
+#include <sd.h>
+#endif
 
 #ifdef TXTSTRM_TEST
+#warning "TXTSTRM_TEST is defined"
 #include "uart.h"
+#define DEBUG_PRINT(M) uart0_puts(M)
+#else
+#define DEBUG_PRINT(M)
 #endif
 
 /* The file extension for file font devised by the illustrious
@@ -54,15 +62,17 @@ bool TextStream::init(unsigned char cs)
 	/* Got nothing to do in init except start the
 	 * SD Card utility
 	 */
-//	return SD.begin(cs);
-
 #ifdef TXTSTRM_USE_FATFS
 	/* Initialise the ff module */
 	FRESULT rs;
 
+	DEBUG_PRINT("TextStream initialising..\n");
+
 	rs = f_mount(&fs, "", 1);
 
 	if(rs != FR_OK) return false;
+#else
+	return SD.begin(cs);
 #endif
 	
 	return true;
@@ -138,11 +148,12 @@ struct TextStream::ptr_ret TextStream::process_path(
 
 bool TextStream::loadFont(char *fnt_fl_str)
 {
-//	SDFile fnt_f;		// Font file object
 #ifdef	TXTSTRM_USE_FATFS
 	FIL fnt_f;
 	FRESULT rs;
 	UINT bytes_read;
+#else
+	SDFile fnt_f;		// Font file object
 #endif
 	struct ptr_ret ret;	// Return value goes here
 	struct font_desc *temp_font_cache;
@@ -156,12 +167,13 @@ bool TextStream::loadFont(char *fnt_fl_str)
 
 	if(ret.rv != 0) return false;	// Path not returned; err
 
-//	fnt_f = SD.open(ret.ptr, FILE_READ);
-//	if(!fnt_f) return false;	// File couldn't be opened
-//	font_desc_size = fnt_f.size();
 #ifdef TXTSTRM_USE_FATFS
 	rs = f_open(&fnt_f, ret.ptr, FA_OPEN_EXISTING);
 	if(rs != FR_OK) return false;
+#else
+	fnt_f = SD.open(ret.ptr, FILE_READ);
+	if(!fnt_f) return false;	// File couldn't be opened
+	font_desc_size = fnt_f.size();
 #endif
 
 	temp_font_cache = (struct font_desc *) malloc(font_desc_size);
@@ -170,21 +182,23 @@ bool TextStream::loadFont(char *fnt_fl_str)
 		goto ERROR;
 	}
 
-//	if(fnt_f.read(temp_font_cache, font_desc_size) \
-//						!= font_desc_size) {
 #ifdef TXTSTRM_USE_FATFS
 	font_desc_size = f_size(&fnt_f);
 
 	rs = f_read(&fnt_f, temp_font_cache, font_desc_size, 
 							&bytes_read);
 	if(rs != FR_OK) {
+#else
+	if(fnt_f.read(temp_font_cache, font_desc_size) \
+						!= font_desc_size) {
 #endif
 		free(temp_font_cache);
 		goto ERROR;
 	} else {
-//		fnt_f.close();
 #ifdef	TXTSTRM_USE_FATFS
 		f_close(&fnt_f);
+#else
+		fnt_f.close();
 #endif
 		free(font_cache);
 		font_cache = temp_font_cache;
@@ -192,9 +206,10 @@ bool TextStream::loadFont(char *fnt_fl_str)
 	}
 
 ERROR:
-//		fnt_f.close();
 #ifdef	TXTSTRM_USE_FATFS
 		f_close(&fnt_f);
+#else
+		fnt_f.close();
 #endif
 		return false;
 }
@@ -294,9 +309,9 @@ ERROR:
 	f_close(&f_col);
 	f_closedir(&dr);
 	return false;
-}					
+}
 #else
-	c_dir = SD.open(dir_path, FILE_READ);
+	c_dir = SD.open(dir_path);
 	while((fl = c_dir.openNextFile())) {
 
 		f_name = fl.name();

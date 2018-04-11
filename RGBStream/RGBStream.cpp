@@ -126,13 +126,16 @@ void RGBStream::feed_bits()
 	for(short i = 0; i < stream_bits_counter;) {
 		PORTx = 0b11111111;	// Take all high
 
+		x++;
+
 		PORTx = static_var;
 
 		x++;
+		i++;
 
 		PORTx = 0;
 
-		static_var = stream_bits[++i];
+		static_var = stream_bits[i];
 	}
 
 	return;
@@ -158,10 +161,10 @@ void RGBStream::refreshLEDs()
 void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_col)
 {
 	unsigned char final_feed;
-	short i;
+	short n;
 	volatile char x;
 	
-	for(i = 0; i < stream_bytes_counter; i++) {
+	for(n = 0; n < stream_bytes_counter; n++) {
 	for(char i = 0; i < 3; i++) {	// Loop through each color byte
 		char fcol_byte, bcol_byte;	// Store color for loop
 
@@ -194,11 +197,11 @@ void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_
 				if(bcol_byte & j) {
 					final_feed = 0xFF;
 				}  else {
-					final_feed = stream_bytes[i];
+					final_feed = stream_bytes[n];
 				} 
 			} else {
 				if(bcol_byte & j) {
-					final_feed = ~stream_bytes[i];
+					final_feed = ~stream_bytes[n];
 				} else {
 					final_feed = 0x0;
 				}
@@ -207,6 +210,8 @@ void RGBStream::feed_bytes(struct color_desc foreg_col, struct color_desc backg_
 		}
 
 		PORTx = 0xFF;
+
+		x++;
 
 		PORTx = final_feed;
 
@@ -231,7 +236,7 @@ char RGBStream::stream_char_feed(	struct char_desc *feed_char,
 		// We go through each feed byte(s) (char or short)
 		// Num of feed bytes = width
 
-		short int final_feed;
+		unsigned short int final_feed;
 
 		if(feed_is_short) {
 			final_feed = feed_char->feed[w];

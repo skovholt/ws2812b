@@ -10,8 +10,8 @@
 const struct RGBStream::font_desc TEST_FONT_DESC = {\
 	.name = {'S', 'a', 'm', 'p', 'l', 'e', '\0'},\
 	.height = 8,\
-	.def_foreg_color = (struct RGBStream::color_desc) {180, 100, 180},\
-	.def_backg_color = (struct RGBStream::color_desc) {60, 120, 60},\
+	.def_foreg_color = (struct RGBStream::color_desc) {140, 0, 0},\
+	.def_backg_color = (struct RGBStream::color_desc) {0, 20, 20},\
 };
 	// We've defined a test font, kept in memory (not external but internal)
 	// It shall be used as the first test for everything "OK"
@@ -95,44 +95,12 @@ void stream_K()
 
 		PORTD = 0b11111111;
 
-#if ALL_LIT==1
-		PORTD = 0b11111111;
-#else
 		PORTD = DANK_CHAR_K_FEED[j]; // Drop the zeros;
-#endif
-		
 
-#if QUANTUM_DELAY > 1
 		x++;
-#endif
-#if QUANTUM_DELAY > 0
-		x++;
-#endif
 
 		PORTD = 0b00000000;	// Drop all
 
-	for(short k = 0; k < DELAY_LIMIT; k++) {
-		uart0_putc('?');
-	}
-	
-#if INDUCE_DELAY > 0
-		x++;
-#endif
-#if INDUCE_DELAY > 1
-		x++;
-#endif
-#if INDUCE_DELAY > 2
-		x++;
-#endif
-#if INDUCE_DELAY > 3
-		x++;
-#endif
-#if INDUCE_DELAY > 4
-		x++;
-#endif
-#if INDUCE_DELAY > 5
-		x++;
-#endif
 	}
 	}
 
@@ -147,31 +115,37 @@ void timing_test()
 	PORTD = 0b00000000;
 	DDRD = 0b11111111;
 
-#if QUICK_START==0
-	_delay_ms(100);
-#endif
+		x = 0;
 
 	for(short i = 0; i < TOTAL_BITS; i++) {
 
-		x = 0;
+		PORTD = 0b11111111;
+
+		x++;
 
 		PORTD = 0b11111111;
 
-		for(x; x < DELAY_STEPS; x++) {
-			// Delay loop
-		}
+		x++;
 
-#if PIN_TOGGLE==1
-		PIND = 0b11111111;
-#else
 		PORTD = 0b00000000;
-#endif
 
-#ifdef REST
-		_delay_ms(1 + 2 * REST);
-#endif
-		
+		x++;
+		x++;
+
+		PORTD = 0b11111111;
+
+		x++;
+
+		PORTD = 0b11111111;
+
+		x++;
+
+		PORTD = 0b00000000;
+
+		x++;
 	}
+
+	_delay_ms(1);
 }
 
 int main(int argc, char *argv[])
@@ -230,10 +204,12 @@ int main(int argc, char *argv[])
 
 //	timing_test();
 
-	test_rs.displayString((struct RGBStream::font_desc *) font, "OK");
+	test_rs.displayString((struct RGBStream::font_desc *) font, "OKO");
 
 
 	uart0_puts("Finished.\n");
+
+	return 0;
 
 	uart0_puts("Waiting for command now. Send any string to stream\n");
 	for(;;) {

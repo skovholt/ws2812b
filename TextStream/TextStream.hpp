@@ -1,6 +1,10 @@
 #pragma once
 
+#ifdef TXTSTRM_USE_FATFS
 #include "ff.h"
+#else
+#include <sd.h>
+#endif
 
 // Includes the SD card routines
 // #include <SD.h> // Don't, using a different module now
@@ -8,7 +12,7 @@
 #include "RGBStream.hpp"
 
 /* Below follow the descriptions you may vary for fine tuning */
-#define TXTSTRM_COLOR_CACHE_SIZE 20	// 20 seems aplenty
+#define TXTSTRM_COLOR_CACHE_SIZE 1	// 20 seems aplenty
 
 /* Maximum possible size of the display string */
 #define TXTSTRM_MAX_DISPLAY_STR_LEN 64
@@ -18,7 +22,7 @@
 
 /* Modifyable portion of code ends. Tinker ahead at your own risk */
 
-#define TXTSTRM_USE_FATFS
+// #define TXTSTRM_USE_FATFS
 	// We use the FATFS module by chaN (elm-chan.org)
 
 #define TXTSTRM_RND_CLR 1

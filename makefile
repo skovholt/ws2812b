@@ -28,7 +28,7 @@ COMPILER_NAME = avr-gcc
 
 HOST_COMPILER = gcc
 
-COMPILER_FLAGS = -mmcu=$(MCU) -DF_CPU=8000000 -O -std=gnu99 -DTXTSTRM_TEST=1
+COMPILER_FLAGS = -mmcu=$(MCU) -O -std=gnu99
 
 # 	FontGen related below:
 FONTGEN_DIR = FontGen
@@ -41,7 +41,7 @@ FONTGEN_TARGET = clicktogetfontfile
 COLGEN_TARGET = clicktogetcolorfile
 #	FontGen related end.
 
-SRC_DIR = RGBStream 
+SRC_DIR = RGBStream
 INC_DIR = $(SRC_DIR) uart
 LIB_DIR = lib
 
@@ -59,7 +59,7 @@ TEST_OBJ = $(addprefix $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(TEST_SRC)))
 
 LIB = $(wildcard $(LIB_DIR)/*.a)
 
-DEFINES = TXTSTRM_TEST
+DEFINES = TXTSTRM_TEST F_CPU=16000000 UART_RX0_BUFFER_SIZE=32 UART_TX0_BUFFER_SIZE=64
 
 COMPILER = $(addprefix $(BIN_DIR), $(COMPILER_NAME))
 AVRDUDE = $(addprefix $(BIN_DIR), avrdude)
@@ -73,14 +73,14 @@ $(BUILD_DIR)/%.o: %.cpp build
 
 all: $(OBJ) build
 
-test: src/lil_test.cpp all
+test: src/test.cpp all
 	@echo "Builing.."
-	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) uart/uart.c $< -o build/test_prog
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(DEF) $(OBJ) $(LIB) uart/uart.c $< -o build/test_prog
 	$(OBJCOPY) -j .text -j .data -O ihex build/test_prog test_prog.hex
 
 led_test: src/led_test.cpp all
 	@echo "Building LED test.."
-	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(OBJ) $(LIB) -DDEBUG=1 uart/uart.c $< -o build/led_test_prog
+	$(COMPILER) $(COMPILER_FLAGS) $(INC) $(DEF) $(OBJ) $(LIB) -DDEBUG=1 uart/uart.c $< -o build/led_test_prog
 	$(OBJCOPY) -j .text -j .data -O ihex build/led_test_prog led_test_prog.hex
 
 ctest: $(TEST_OBJ) build
@@ -110,7 +110,7 @@ test_upload:
 
 led_test_upload:
 	@echo "Uploading.."
-	$(AVRDUDE) -p $(MCU) -e -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xE2:m -Uflash:w:led_test_prog.hex
+	$(AVRDUDE) -p $(MCU) -e -B 1 -C $(AVRDUDE_CONF_FILE) -c usbasp -Ulfuse:w:0xFF:m -Uflash:w:led_test_prog.hex
 
 build: $(BUILD_TREE)
 

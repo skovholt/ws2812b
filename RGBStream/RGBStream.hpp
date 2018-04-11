@@ -10,8 +10,11 @@
 #define RGBSTRM_LOW_RAM 0
 #endif
 
-#define PORTx PORTA
-#define DDRx DDRA
+#define RGBSTRM_BITS_BUFFER_SIZE 512
+#define RGBSTRM_BYTES_BUFFER_SIZE 64
+
+#define PORTx PORTD
+#define DDRx DDRD
 
 #define RGBSTREAM_FONT_NAME_SIZE 8
 
@@ -98,7 +101,7 @@ public:
 private:
 
 #if RGBSTRM_LOW_RAM == 0
-	unsigned char stream_bits[768];
+	unsigned char stream_bits[RGBSTRM_BITS_BUFFER_SIZE];
 	int stream_bits_counter;
 
 	void feed_bits(); // Streams 8-bit saved feed
