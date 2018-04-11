@@ -50,11 +50,11 @@ struct char_desc * make_char_feed_desc(	struct char_vis_desc *cvd,
 
 		if(font_height > 8) {
 			memcpy(empty_bytes + sizeof(struct char_desc)\
-			+ (cvd->width - 1 - i) * sizeof(short int), &feed_element,
+			+ i * sizeof(short int), &feed_element,
 			sizeof(short int));
 		} else {
 			memcpy(empty_bytes + sizeof(struct char_desc)\
-			+ (cvd->width - 1 - i) * sizeof(char), ((char *) &feed_element),
+			+ i * sizeof(char), ((char *) &feed_element),
 			sizeof(char));
 		}
 	}
